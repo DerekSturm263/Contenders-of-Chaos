@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 
-public class Movement : MonoBehaviour
+[RequireComponent(typeof(Rigidbody2D), typeof(BoxCollider2D))]
+public class PlayerMovement : MonoBehaviour
 {
     public LayerMask ground;
 
@@ -9,11 +10,11 @@ public class Movement : MonoBehaviour
     private SpriteRenderer sprtRndr;
 
     [Header("Movement Settings")]
-    public float walkSpeed = 2f;
-    public float runSpeed = 4f;
+    public float walkSpeed = 5f;
+    public float runSpeed = 10f;
     private float currentSpeed;
 
-    public float jumpSpeed = 5f;
+    public float jumpSpeed = 15f;
 
     public Transform currentPlatform;
 
@@ -65,7 +66,7 @@ public class Movement : MonoBehaviour
         rb2D.AddForce(new Vector2(0f, jumpSpeed), ForceMode2D.Impulse);
         anim.SetTrigger("Jumping");
     }
-    
+
     private bool IsGrounded()
     {
         return Physics2D.BoxCast(transform.position - new Vector3(0f, 1f), new Vector2(0.5f, 0.125f), 0f, Vector2.down, 0.05f, ground);

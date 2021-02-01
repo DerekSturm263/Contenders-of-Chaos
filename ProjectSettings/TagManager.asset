@@ -3,7 +3,15 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - UI Panel
+  - UI Label
+  - UI Empty
+  - UI P1 Name
+  - UI P2 Name
+  - Team
+  - Room Number
+  - Room Code
   layers:
   - Default
   - TransparentFX
@@ -49,4 +57,7 @@ TagManager:
     locked: 0
   - name: Player
     uniqueID: 2933974095
+    locked: 0
+  - name: UI
+    uniqueID: 1529032619
     locked: 0
