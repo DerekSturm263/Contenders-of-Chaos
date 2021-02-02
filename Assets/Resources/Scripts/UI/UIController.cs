@@ -42,6 +42,7 @@ public class UIController : MonoBehaviour
     {
         codePrompt.SetActive(true);
         enterCodePrompt.text = "Please enter the room code of the game you wish to enter.\n\nExample: 123456";
+        codeInput.text = "";
     }
 
     public void HideCodePrompt()
