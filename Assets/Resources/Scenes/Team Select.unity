@@ -1236,12 +1236,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 72
+  m_fontSize: 80
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 80
   m_fontStyle: 16
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -2491,12 +2491,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 72
+  m_fontSize: 80
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 80
   m_fontStyle: 16
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -2598,6 +2598,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47ccdf539e03f0e47ac8973684d71592, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  teams:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  isInTeam: 0
 --- !u!114 &1067104680
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4406,6 +4412,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   roomNumber: {fileID: 1038602265}
   codePrompt: {fileID: 0}
+  codeInput: {fileID: 0}
+  usernameInput: {fileID: 0}
+  enterCodePrompt: {fileID: 0}
 --- !u!4 &2065274179
 Transform:
   m_ObjectHideFlags: 0

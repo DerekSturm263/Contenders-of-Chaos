@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
 using UnityEngine.Networking;
@@ -9,6 +10,11 @@ public class UIController : MonoBehaviour
     public TMPro.TMP_Text roomNumber;
 
     public GameObject codePrompt;
+
+    public TMPro.TMP_InputField codeInput;
+    public TMPro.TMP_InputField usernameInput;
+
+    public TMPro.TMP_Text enterCodePrompt;
 
     public static UIController GetActiveController()
     {
@@ -35,6 +41,7 @@ public class UIController : MonoBehaviour
     private void DisplayCodePrompt()
     {
         codePrompt.SetActive(true);
+        enterCodePrompt.text = "Please enter the room code of the game you wish to enter.\n\nExample: 123456";
     }
 
     public void HideCodePrompt()
@@ -44,12 +51,28 @@ public class UIController : MonoBehaviour
 
     public void EnterCode()
     {
-        string input = EventSystem.current.currentSelectedGameObject.GetComponent<TMPro.TMP_InputField>().text;
+        string input = codeInput.text;
 
         if (input.Length == 6)
         {
             StartCoroutine(TryJoin(input));
         }
+        else
+        {
+            enterCodePrompt.text = "Please enter the room code of the game you wish to enter.\n\nPlease type in a valid room code.";
+        }
+    }
+
+    public void EnterUserName()
+    {
+        string input = usernameInput.text;
+
+        GameController.userName = input;
+    }
+
+    public void GoToPlay()
+    {
+        SceneManager.LoadScene("Host or Join Game");
     }
 
     private IEnumerator TryJoin(string input)
@@ -63,22 +86,61 @@ public class UIController : MonoBehaviour
                 string[] pages = i.ToString().Split('/');
                 int page = pages.Length - 1;
 
-                if (webRequest.isDone)
+                if (webRequest.isNetworkError)
+                {
+                    Debug.LogError("An error has occurred while pulling.\n" + webRequest.error);
+                }
+                else
                 {
                     if (webRequest.downloadHandler.text.Contains(input))
                     {
-                        Debug.Log("Data: " + webRequest.downloadHandler.text + " has been succesfully pulled from database.");
                         CloudGameData.roomNum = input;
+                        CloudGameData.gameNum = i - 10;
 
                         SceneManager.LoadScene("Team Select");
                         break;
                     }
                 }
-                else
-                {
-                    Debug.LogError("An error has occurred while pulling.\n" + webRequest.error);
-                }
             }
         }
+
+        enterCodePrompt.text = "Please enter the room code of the game you wish to enter.\n\nThere are no open rooms with that room code.";
+    }
+
+    public void QuitGame()
+    {
+        if (CloudGameData.isHosting)
+        {
+            CloseGame();
+        }
+        else
+        {
+            LeaveGame();
+        }
+    }
+
+    private void CloseGame()
+    {
+
+    }
+
+    public void LeaveToTitle()
+    {
+        if (codePrompt.activeSelf)
+        {
+            HideCodePrompt();
+        }
+        else
+        {
+            SceneManager.LoadScene("Title");
+        }
+    }
+
+    private void LeaveGame()
+    {
+        TeamsUpdater thisTeam = TeamsUpdater.GetTeamsUpdater();
+
+        StartCoroutine(thisTeam.LeaveTeam(Array.IndexOf(thisTeam.teams, thisTeam.thisPlayer)));
+        SceneManager.LoadScene("Host or Join Game");
     }
 }

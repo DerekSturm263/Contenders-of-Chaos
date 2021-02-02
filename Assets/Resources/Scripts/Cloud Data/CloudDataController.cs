@@ -44,7 +44,6 @@ public class CloudDataController : MonoBehaviour
             if (webRequest.isDone)
             {
                 Debug.Log("Data has been succesfully pulled from " + PullURL + uri + ".");
-                CloudGameData.resultFromLastPull = webRequest.downloadHandler.text;
             }
             else
             {

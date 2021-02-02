@@ -10,8 +10,6 @@ public class CloudGameData : MonoBehaviour
 
     public static string roomNum = "000000";
 
-    public static string resultFromLastPull = "";
-
     private void Awake()
     {
         if (isHosting)
@@ -36,13 +34,6 @@ public class CloudGameData : MonoBehaviour
         return GameObject.FindObjectOfType<CloudGameData>();
     }
 
-    // Recieves a room code from a game index (0 - 9)
-    public void ReceiveRoomCode(int gameIndex, out string roomNum)
-    {
-        StartCoroutine(CloudDataController.Pull((gameIndex + 10).ToString()));
-        roomNum = resultFromLastPull;
-    }
-
     public IEnumerator HostGame()
     {
         for (int i = 0; i < 10; ++i)
@@ -54,19 +45,17 @@ public class CloudGameData : MonoBehaviour
                 string[] pages = i.ToString().Split('/');
                 int page = pages.Length - 1;
 
-                if (webRequest.isDone)
+                if (webRequest.isNetworkError)
                 {
-                    if (webRequest.downloadHandler.text.Contains("False"))
-                    {
-                        Debug.Log("Data: " + webRequest.downloadHandler.text + " has been succesfully pulled from database.");
-
-                        gameNum = i;
-                        break;
-                    }
+                    Debug.LogError("An error has occurred while pulling.\n" + webRequest.error);
                 }
                 else
                 {
-                    Debug.LogError("An error has occurred while pulling.\n" + webRequest.error);
+                    if (webRequest.downloadHandler.text.Contains("False"))
+                    {
+                        gameNum = i;
+                        break;
+                    }
                 }
             }
         }
@@ -81,11 +70,7 @@ public class CloudGameData : MonoBehaviour
         {
             yield return webRequest.SendWebRequest();
 
-            if (webRequest.isDone)
-            {
-                Debug.Log("Data True has succesfully been uploaded to database at index: " + gameNum);
-            }
-            else
+            if (webRequest.isNetworkError)
             {
                 Debug.LogError("An error has occurred while pushing.\n" + webRequest.error);
             }
@@ -110,18 +95,20 @@ public class CloudGameData : MonoBehaviour
         {
             yield return webRequest.SendWebRequest();
 
-            if (webRequest.isDone)
+            if (webRequest.isNetworkError)
             {
-                Debug.Log("Code: " + code + " has succesfully been uploaded to database at index: " + (gameNum + 10));
+                Debug.LogError("An error has occurred while pushing.\n" + webRequest.error);
+            }
+            else
+            {
+                Debug.Log("New game successfully hosted at index: " + gameNum + " with code: " + code);
 
                 roomNum = code;
                 UIController.GetActiveController().UpdateRoomNumber(roomNum);
             }
-            else
-            {
-                Debug.LogError("An error has occurred while pushing.\n" + webRequest.error);
-            }
         }
+
+        StartCoroutine(TeamsUpdater.GetTeamsUpdater().UpdateTeams());
     }
 
     public IEnumerator JoinGame(string input)
@@ -135,20 +122,22 @@ public class CloudGameData : MonoBehaviour
                 string[] pages = i.ToString().Split('/');
                 int page = pages.Length - 1;
 
-                if (webRequest.isDone)
+                if (webRequest.isNetworkError)
+                {
+                    Debug.LogError("An error has occurred while pulling.\n" + webRequest.error);
+                }
+                else
                 {
                     if (webRequest.downloadHandler.text.Contains(input))
                     {
-                        Debug.Log("Data: " + webRequest.downloadHandler.text + " has been succesfully pulled from database.");
+                        Debug.Log("Game at index: " + gameNum + " has been succesfully joined.");
                         UIController.GetActiveController().UpdateRoomNumber(roomNum);
                         break;
                     }
                 }
-                else
-                {
-                    Debug.LogError("An error has occurred while pulling.\n" + webRequest.error);
-                }
             }
         }
+
+        StartCoroutine(TeamsUpdater.GetTeamsUpdater().UpdateTeams());
     }
 }

@@ -43,7 +43,7 @@ public class Team : MonoBehaviour
             case PlayerData.Device_Type.PC:
                 players[0] = player;
                 break;
-            case PlayerData.Device_Type.Mobile:
+            case PlayerData.Device_Type.MB:
                 players[1] = player;
                 break;
         }
@@ -56,7 +56,7 @@ public class Team : MonoBehaviour
             case PlayerData.Device_Type.PC:
                 players[0] = null;
                 break;
-            case PlayerData.Device_Type.Mobile:
+            case PlayerData.Device_Type.MB:
                 players[1] = null;
                 break;
         }
