@@ -143,4 +143,24 @@ public class UIController : MonoBehaviour
         StartCoroutine(thisTeam.LeaveTeam(Array.IndexOf(thisTeam.teams, thisTeam.thisPlayer)));
         SceneManager.LoadScene("Host or Join Game");
     }
+
+    public void GoToSettings()
+    {
+        SceneManager.LoadScene("Settings");
+    }
+
+    public void OpenMenu(GameObject menu)
+    {
+        menu.SetActive(true);
+    }
+
+    public void CloseMenu(GameObject menu)
+    {
+        menu.SetActive(false);
+    }
+
+    public void Quit()
+    {
+        Application.Quit();
+    }
 }
