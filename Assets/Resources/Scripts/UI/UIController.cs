@@ -15,6 +15,7 @@ public class UIController : MonoBehaviour
     public TMPro.TMP_InputField usernameInput;
 
     public TMPro.TMP_Text enterCodePrompt;
+    public GameObject quitPrompt;
 
     private bool failedHost = false;
 
@@ -76,8 +77,8 @@ public class UIController : MonoBehaviour
         else
         {
             WWWForm form = new WWWForm();
-            form.AddField("groupid", "vgd21");
-            form.AddField("grouppw", "foobar21");
+            form.AddField("groupid", "pm36");
+            form.AddField("grouppw", "N3Km3yJZpM");
             form.AddField("row", CloudGameData.gameNum);
             form.AddField("s4", "True");
 
@@ -101,8 +102,8 @@ public class UIController : MonoBehaviour
             }
 
             WWWForm form2 = new WWWForm();
-            form2.AddField("groupid", "vgd21");
-            form2.AddField("grouppw", "foobar21");
+            form2.AddField("groupid", "pm36");
+            form2.AddField("grouppw", "N3Km3yJZpM");
             form2.AddField("row", CloudGameData.gameNum + 10);
             form2.AddField("s4", code);
 
@@ -252,8 +253,8 @@ public class UIController : MonoBehaviour
             string addition = (GameController.playerInfo.deviceType == PlayerData.Device_Type.PC) ? "*PC*" : "*MB*";
 
             WWWForm form = new WWWForm();
-            form.AddField("groupid", "vgd21");
-            form.AddField("grouppw", "foobar21");
+            form.AddField("groupid", "pm36");
+            form.AddField("grouppw", "N3Km3yJZpM");
             form.AddField("row", rowIndex);
             form.AddField("s4", addition + GameController.playerInfo.name);
 
@@ -297,8 +298,8 @@ public class UIController : MonoBehaviour
     private IEnumerator CloseGameNetwork()
     {
         WWWForm form = new WWWForm();
-        form.AddField("groupid", "vgd21");
-        form.AddField("grouppw", "foobar21");
+        form.AddField("groupid", "pm36");
+        form.AddField("grouppw", "N3Km3yJZpM");
         form.AddField("row", CloudGameData.gameNum);
         form.AddField("s4", "False");
 
@@ -315,8 +316,8 @@ public class UIController : MonoBehaviour
         for (int i = 0; i < 8; ++i)
         {
             WWWForm form2 = new WWWForm();
-            form2.AddField("groupid", "vgd21");
-            form2.AddField("grouppw", "foobar21");
+            form2.AddField("groupid", "pm36");
+            form2.AddField("grouppw", "N3Km3yJZpM");
             form2.AddField("row", i + (10 * (CloudGameData.gameNum + 1) + 10));
             form2.AddField("s4", ""); // CHANGE THIS TO BE NULL ONCE YOU FIGURE OUT HOW TO DO THAT.
 
@@ -361,8 +362,8 @@ public class UIController : MonoBehaviour
         TeamsUpdater.GetTeamsUpdater().teams[teamNum].GetComponent<Team>().RemovePlayer(GameController.playerInfo);
 
         WWWForm form = new WWWForm();
-        form.AddField("groupid", "vgd21");
-        form.AddField("grouppw", "foobar21");
+        form.AddField("groupid", "pm36");
+        form.AddField("grouppw", "N3Km3yJZpM");
         form.AddField("row", TeamsUpdater.GetIndexOfPlayer(teamNum, (int) GameController.playerInfo.deviceType, CloudGameData.gameNum));
         form.AddField("s4", ""); // CHANGE THIS TO BE NULL ONCE YOU FIGURE OUT HOW TO DO THAT.
 

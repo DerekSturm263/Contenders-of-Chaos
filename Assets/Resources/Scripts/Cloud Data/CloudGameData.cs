@@ -1,6 +1,6 @@
 ﻿public static class CloudGameData
 {
-    public const string PullURL = "http://vgdapi.basmati.org/gets4.php?groupid=vgd21&row=";
+    public const string PullURL = "http://vgdapi.basmati.org/gets4.php?groupid=pm36&row=";
     public const string PushURL = "http://vgdapi.basmati.org/mods4.php";
 
     public static bool isHosting = false;
