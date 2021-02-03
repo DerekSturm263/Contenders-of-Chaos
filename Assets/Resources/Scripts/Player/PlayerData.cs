@@ -3,6 +3,7 @@
 public class PlayerData
 {
     public string name;
+    public int teamNum;
 
     public enum Device_Type
     {
