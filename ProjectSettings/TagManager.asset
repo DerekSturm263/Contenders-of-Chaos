@@ -12,6 +12,7 @@ TagManager:
   - Team
   - Room Number
   - Room Code
+  - UI Player
   layers:
   - Default
   - TransparentFX

@@ -17,7 +17,33 @@ public class UIController : MonoBehaviour
     public TMPro.TMP_Text enterCodePrompt;
     public GameObject quitPrompt;
 
+    public GameObject mobileButton;
+
     private bool failedHost = false;
+
+    public bool resetCloudData = false;
+
+    // Settings.
+    public static float volume;
+    public static bool fullscreen;
+    public static bool particles;
+    public static bool postProcessing;
+
+    private void Awake()
+    {
+        if (resetCloudData)
+        {
+            StartCoroutine(CloudGameData.ResetAllCloudData());
+        }
+    }
+
+    private void Start()
+    {
+        if (mobileButton != null)
+        {
+            mobileButton.SetActive(GameController.playerInfo.deviceType == PlayerData.Device_Type.PC);
+        }
+    }
 
     public static UIController GetActiveController()
     {
@@ -118,12 +144,11 @@ public class UIController : MonoBehaviour
                 else
                 {
                     Debug.Log("New game successfully hosted at index: " + CloudGameData.gameNum + " with code: " + code);
-
                     CloudGameData.roomNum = code;
                 }
             }
 
-            SceneManager.LoadScene("Team Select");
+            StartCoroutine(JoinGame(CloudGameData.gameNum));
         }
     }
 
@@ -158,13 +183,6 @@ public class UIController : MonoBehaviour
         }
     }
 
-    public void EnterUserName()
-    {
-        string input = usernameInput.text;
-
-        GameController.playerInfo.name = input;
-    }
-
     public void GoToPlay()
     {
         SceneManager.LoadScene("Host or Join Game");
@@ -177,6 +195,8 @@ public class UIController : MonoBehaviour
         failedHost = false;
         bool cancelJoin = true;
         codePrompt.SetActive(false);
+
+        int gameNum = -1;
 
         for (int i = 10; i < 20; ++i)
         {
@@ -195,14 +215,29 @@ public class UIController : MonoBehaviour
                 {
                     if (webRequest.downloadHandler.text.Contains(input))
                     {
-                        CloudGameData.roomNum = input;
-                        cancelJoin = false;
-                        StartCoroutine(JoinGame(i - 10));
+                        gameNum = i - 10;
                         break;
                     }
                 }
             }
         }
+
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(CloudGameData.PullURL + gameNum))
+        {
+            yield return webRequest.SendWebRequest();
+
+            string[] pages = gameNum.ToString().Split('/');
+            int page = pages.Length - 1;
+
+            if (webRequest.downloadHandler.text.Contains("True"))
+            {
+                cancelJoin = false;
+                CloudGameData.isHosting = false;
+                StartCoroutine(JoinGame(gameNum));
+            }
+        }
+
+        CloudGameData.roomNum = input;
 
         if (cancelJoin)
         {
@@ -224,7 +259,7 @@ public class UIController : MonoBehaviour
                 string[] pages = i.ToString().Split('/');
                 int page = pages.Length - 1;
 
-                if (webRequest.downloadHandler.text.Length > 3)
+                if (webRequest.downloadHandler.text.Length < TeamsUpdater.GetIndexOfPlayer(teamNum, 1, gameIndex) + 1)
                 {
                     if (GameController.playerInfo.deviceType == PlayerData.Device_Type.PC && i % 2 != 0 ||
                         GameController.playerInfo.deviceType == PlayerData.Device_Type.MB && i % 2 == 0)
@@ -247,7 +282,6 @@ public class UIController : MonoBehaviour
         else
         {
             CloudGameData.gameNum = gameIndex;
-            CloudGameData.isHosting = false;
 
             int rowIndex = TeamsUpdater.GetIndexOfPlayer(teamNum, (int) GameController.playerInfo.deviceType, CloudGameData.gameNum);
             string addition = (GameController.playerInfo.deviceType == PlayerData.Device_Type.PC) ? "*PC*" : "*MB*";
@@ -313,13 +347,29 @@ public class UIController : MonoBehaviour
             }
         }
 
+        WWWForm form3 = new WWWForm();
+        form3.AddField("groupid", "pm36");
+        form3.AddField("grouppw", "N3Km3yJZpM");
+        form3.AddField("row", CloudGameData.gameNum + 10);
+        form3.AddField("s4", "000000");
+
+        using (UnityWebRequest webRequest = UnityWebRequest.Post(CloudGameData.PushURL, form3))
+        {
+            yield return webRequest.SendWebRequest();
+
+            if (webRequest.isNetworkError)
+            {
+                Debug.LogError("An error has occurred while pushing.\n" + webRequest.error);
+            }
+        }
+
         for (int i = 0; i < 8; ++i)
         {
             WWWForm form2 = new WWWForm();
             form2.AddField("groupid", "pm36");
             form2.AddField("grouppw", "N3Km3yJZpM");
             form2.AddField("row", i + (10 * (CloudGameData.gameNum + 1) + 10));
-            form2.AddField("s4", ""); // CHANGE THIS TO BE NULL ONCE YOU FIGURE OUT HOW TO DO THAT.
+            form2.AddField("s4", "E");
 
             using (UnityWebRequest webRequest = UnityWebRequest.Post(CloudGameData.PushURL, form2))
             {
@@ -353,19 +403,21 @@ public class UIController : MonoBehaviour
 
     private void LeaveGame()
     {
-        TeamsUpdater thisTeam = TeamsUpdater.GetTeamsUpdater();
-        StartCoroutine(LeaveTeam(Array.IndexOf(thisTeam.teams, GameController.playerInfo)));
+        try
+        {
+            StartCoroutine(LeaveTeam(TeamsUpdater.GetTeamsUpdater().teams[GameController.playerInfo.teamNum].GetComponent<Team>(), GameController.playerInfo.teamNum));
+        } catch { }
     }
 
-    public IEnumerator LeaveTeam(int teamNum)
+    public IEnumerator LeaveTeam(Team team, int teamNum)
     {
-        TeamsUpdater.GetTeamsUpdater().teams[teamNum].GetComponent<Team>().RemovePlayer(GameController.playerInfo);
+        team.RemovePlayer(GameController.playerInfo);
 
         WWWForm form = new WWWForm();
         form.AddField("groupid", "pm36");
         form.AddField("grouppw", "N3Km3yJZpM");
         form.AddField("row", TeamsUpdater.GetIndexOfPlayer(teamNum, (int) GameController.playerInfo.deviceType, CloudGameData.gameNum));
-        form.AddField("s4", ""); // CHANGE THIS TO BE NULL ONCE YOU FIGURE OUT HOW TO DO THAT.
+        form.AddField("s4", "E");
 
         using (UnityWebRequest webRequest = UnityWebRequest.Post(CloudGameData.PushURL, form))
         {
@@ -407,5 +459,51 @@ public class UIController : MonoBehaviour
     public void Quit()
     {
         Application.Quit();
+    }
+
+    public void GoToMobileApp()
+    {
+        SceneManager.LoadScene("Mobile App");
+    }
+
+    public void StartGame()
+    {
+        SceneManager.LoadScene("Main");
+    }
+
+    #region Settings
+
+    public void EnterUserName()
+    {
+        string input = usernameInput.text;
+
+        GameController.playerInfo.name = input;
+    }
+
+    public void AdjustVolume()
+    {
+
+    }
+
+    public void ToggleFullscreen()
+    {
+
+    }
+
+    public void ToggleParticles()
+    {
+
+    }
+
+    public void TogglePostProcessing()
+    {
+
+    }
+
+    #endregion
+
+    private void OnApplicationQuit()
+    {
+        QuitGame();
     }
 }

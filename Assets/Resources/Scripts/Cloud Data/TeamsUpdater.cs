@@ -32,8 +32,6 @@ public class TeamsUpdater : MonoBehaviour
                 string[] pages = i.ToString().Split('/');
                 int page = pages.Length - 1;
 
-                int index = GetIndexOfPlayer(i / 2, (int) GameController.playerInfo.deviceType, CloudGameData.gameNum);
-
                 if (webRequest.isNetworkError)
                 {
                     Debug.LogError("An error has occurred while pulling.\n" + webRequest.error);
@@ -42,8 +40,9 @@ public class TeamsUpdater : MonoBehaviour
                 {
                     if (webRequest.downloadHandler.text.Contains("*PC*"))
                     {
-                        Debug.Log(webRequest.downloadHandler.text + " has succesfully joined Team " + i / 2 + " at index: " + index);
+                        Debug.Log(webRequest.downloadHandler.text + " has succesfully joined Team " + i / 2);
                         string playerName = webRequest.downloadHandler.text.Replace("*PC*", "");
+                        playerName = playerName.Replace(GetIndexOfPlayer(i / 2, 0, CloudGameData.gameNum) + ",", "");
 
                         PlayerData newPlayer = new PlayerData(playerName, PlayerData.Device_Type.PC);
 
@@ -51,8 +50,9 @@ public class TeamsUpdater : MonoBehaviour
                     }
                     else if (webRequest.downloadHandler.text.Contains("*MB*"))
                     {
-                        Debug.Log(webRequest.downloadHandler.text + " has succesfully joined Team " + i / 2 + " at index: " + index);
+                        Debug.Log(webRequest.downloadHandler.text + " has succesfully joined Team " + i / 2);
                         string playerName = webRequest.downloadHandler.text.Replace("*MB*", "");
+                        playerName = playerName.Replace(GetIndexOfPlayer(i / 2, 1, CloudGameData.gameNum) + ",", "");
 
                         PlayerData newPlayer = new PlayerData(playerName, PlayerData.Device_Type.MB);
 

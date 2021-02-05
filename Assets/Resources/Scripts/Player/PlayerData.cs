@@ -15,13 +15,19 @@ public class PlayerData
     {
         if (deviceType == Device_Type.Null)
         {
-            #if UNITY_ANDROID
-                deviceType = Device_Type.MB;
-            #else
-                deviceType = Device_Type.PC;
-            #endif
+            switch (Application.platform)
+            {
+                case RuntimePlatform.Android:
+                    deviceType = Device_Type.MB;
+                    break;
+
+                default:
+                    deviceType = Device_Type.PC;
+                    break;
+            }
         }
 
         this.name = name;
+        this.deviceType = deviceType;
     }
 }

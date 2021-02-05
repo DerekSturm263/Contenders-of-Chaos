@@ -7,14 +7,14 @@ public class GameController : MonoBehaviour
     private void Awake()
     {
         Initialize();
-        DontDestroyOnLoad(this);
     }
 
     public static void Initialize()
     {
-        if (GameObject.FindObjectOfType<GameController>() != null)
+        if (playerInfo != null)
             return;
 
         playerInfo = new PlayerData(SystemInfo.deviceName);
+        Debug.Log("Created new PlayerData with username: " + playerInfo.name + " and deviceType: " + playerInfo.deviceType);
     }
 }
