@@ -17,6 +17,8 @@ public class UIController : MonoBehaviour
     public TMPro.TMP_Text enterCodePrompt;
     public GameObject quitPrompt;
 
+    public GameObject hostGame;
+
     public GameObject mobileButton;
 
     private bool failedHost = false;
@@ -39,9 +41,16 @@ public class UIController : MonoBehaviour
 
     private void Start()
     {
+        bool isMobile = GameController.playerInfo.deviceType == PlayerData.Device_Type.PC;
+
         if (mobileButton != null)
         {
-            mobileButton.SetActive(GameController.playerInfo.deviceType == PlayerData.Device_Type.PC);
+            mobileButton.SetActive(isMobile);
+        }
+
+        if (hostGame != null)
+        {
+            hostGame.SetActive(isMobile);
         }
     }
 
@@ -245,6 +254,7 @@ public class UIController : MonoBehaviour
             joinInfo.GetComponentInChildren<TMPro.TMP_Text>().text = "There are no open rooms with that room code. Please try a different code.";
         }
     }
+
     public IEnumerator JoinGame(int gameIndex)
     {
         int teamNum = 0;
@@ -259,10 +269,10 @@ public class UIController : MonoBehaviour
                 string[] pages = i.ToString().Split('/');
                 int page = pages.Length - 1;
 
-                if (webRequest.downloadHandler.text.Length < TeamsUpdater.GetIndexOfPlayer(teamNum, 1, gameIndex) + 1)
+                if (webRequest.downloadHandler.text.Length < 5)
                 {
-                    if (GameController.playerInfo.deviceType == PlayerData.Device_Type.PC && i % 2 != 0 ||
-                        GameController.playerInfo.deviceType == PlayerData.Device_Type.MB && i % 2 == 0)
+                    if (GameController.playerInfo.deviceType == PlayerData.Device_Type.PC && i % 2 == 0 ||
+                        GameController.playerInfo.deviceType == PlayerData.Device_Type.MB && i % 2 != 0)
                     {
                         teamNum = i / 2;
                         GameController.playerInfo.teamNum = teamNum;
