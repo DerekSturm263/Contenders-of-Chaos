@@ -4,13 +4,13 @@ using UnityEngine.Networking;
 
 public class TeamsUpdater : MonoBehaviour
 {
-    [HideInInspector] public GameObject[] teams = new GameObject[4];
+    public GameObject[] teams = new GameObject[4];
 
     public bool isInTeam = false;
+    public bool update = false;
 
     private void Awake()
     {
-        teams = GameObject.FindGameObjectsWithTag("Team");
         StartCoroutine(UpdateTeams());
     }
 
@@ -19,17 +19,15 @@ public class TeamsUpdater : MonoBehaviour
         return GameObject.FindObjectOfType<TeamsUpdater>();
     }
 
-    public IEnumerator UpdateTeams()
+    public IEnumerator UpdateTeam(int playerNum)
     {
         UIController.GetActiveController().UpdateRoomNumber(CloudGameData.roomNum);
 
-        for (int i = 0; i < 8; ++i)
-        {
-            using (UnityWebRequest webRequest = UnityWebRequest.Get(CloudGameData.PullURL + (i + (10 * (CloudGameData.gameNum + 1) + 10))))
+            using (UnityWebRequest webRequest = UnityWebRequest.Get(CloudGameData.PullURL + (playerNum + (10 * (CloudGameData.gameNum + 1) + 10))))
             {
                 yield return webRequest.SendWebRequest();
 
-                string[] pages = i.ToString().Split('/');
+                string[] pages = (playerNum / 2).ToString().Split('/');
                 int page = pages.Length - 1;
 
                 if (webRequest.isNetworkError)
@@ -40,28 +38,41 @@ public class TeamsUpdater : MonoBehaviour
                 {
                     if (webRequest.downloadHandler.text.Contains("*PC*"))
                     {
-                        Debug.Log(webRequest.downloadHandler.text + " has succesfully joined Team " + i / 2);
+                        Debug.Log(webRequest.downloadHandler.text + " has succesfully joined Team " + playerNum / 2);
                         string playerName = webRequest.downloadHandler.text.Replace("*PC*", "");
-                        playerName = playerName.Replace(GetIndexOfPlayer(i / 2, 0, CloudGameData.gameNum) + ",", "");
+                        playerName = playerName.Replace(GetIndexOfPlayer(playerNum / 2, 0, CloudGameData.gameNum) + ",", "");
 
                         PlayerData newPlayer = new PlayerData(playerName, PlayerData.Device_Type.PC);
 
-                        teams[i / 2].GetComponent<Team>().AddPlayer(newPlayer);
+                        teams[playerNum / 2].GetComponent<Team>().AddPlayer(newPlayer);
                     }
                     else if (webRequest.downloadHandler.text.Contains("*MB*"))
                     {
-                        Debug.Log(webRequest.downloadHandler.text + " has succesfully joined Team " + i / 2);
+                        Debug.Log(webRequest.downloadHandler.text + " has succesfully joined Team " + playerNum / 2);
                         string playerName = webRequest.downloadHandler.text.Replace("*MB*", "");
-                        playerName = playerName.Replace(GetIndexOfPlayer(i / 2, 1, CloudGameData.gameNum) + ",", "");
+                        playerName = playerName.Replace(GetIndexOfPlayer(playerNum / 2, 1, CloudGameData.gameNum) + ",", "");
 
                         PlayerData newPlayer = new PlayerData(playerName, PlayerData.Device_Type.MB);
 
-                        teams[i / 2].GetComponent<Team>().AddPlayer(newPlayer);
+                        teams[playerNum / 2].GetComponent<Team>().AddPlayer(newPlayer);
                     }
                 }
 
-                teams[i / 2].GetComponent<Team>().UpdateInfo();
-            }
+                teams[playerNum / 2].GetComponent<Team>().UpdateInfo();
+        }
+
+        if (update)
+        {
+            StartCoroutine(UpdateTeam(playerNum));
+        }
+    }
+
+    public IEnumerator UpdateTeams()
+    {
+        for (int i = 0; i < 8; ++i)
+        {
+            StartCoroutine(UpdateTeam(i));
+            yield return null;
         }
     }
 

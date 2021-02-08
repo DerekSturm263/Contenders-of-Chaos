@@ -3118,11 +3118,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   teams:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 1327205864}
+  - {fileID: 914686301}
+  - {fileID: 179057856}
+  - {fileID: 841575666}
   isInTeam: 0
+  update: 1
 --- !u!1 &1099430057
 GameObject:
   m_ObjectHideFlags: 0
@@ -5553,6 +5554,8 @@ MonoBehaviour:
   usernameInput: {fileID: 0}
   enterCodePrompt: {fileID: 0}
   quitPrompt: {fileID: 0}
+  hostGame: {fileID: 0}
+  mobileButton: {fileID: 0}
   resetCloudData: 0
 --- !u!4 &2065274179
 Transform:

@@ -98,7 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 1
+  m_UseShadowmask: 0
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -2625,8 +2625,9 @@ MonoBehaviour:
   usernameInput: {fileID: 0}
   enterCodePrompt: {fileID: 0}
   quitPrompt: {fileID: 0}
+  hostGame: {fileID: 0}
   mobileButton: {fileID: 1115161265}
-  resetCloudData: 1
+  resetCloudData: 0
 --- !u!4 &1955552284
 Transform:
   m_ObjectHideFlags: 0
