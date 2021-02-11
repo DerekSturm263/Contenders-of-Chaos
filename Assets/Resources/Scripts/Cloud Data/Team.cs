@@ -95,4 +95,19 @@ public class Team : MonoBehaviour
             p2Name.text = "";
         }
     }
+
+    public PlayerData GetPlayer(int i)
+    {
+        return players[i];
+    }
+
+    public PlayerData[] GetPlayers()
+    {
+        return players;
+    }
+
+    public bool IsEmpty()
+    {
+        return GetPlayer(0) == null && GetPlayer(1) == null;
+    }
 }
