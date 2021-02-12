@@ -91,14 +91,14 @@ public class TeamsUpdater : MonoBehaviour
                 }
             }
 
-            //if (CloudGameData.isHosting && teamsFull > 1)
-            //{
+            if (CloudGameData.isHosting && teamsFull > 1)
+            {
                 UIController.GetActiveController().startGameButton.SetActive(true);
-            //}
-            //else
-            //{
-            //    UIController.GetActiveController().startGameButton.SetActive(false);
-            //}
+            }
+            else
+            {
+                UIController.GetActiveController().startGameButton.SetActive(false);
+            }
         }
 
         if (removePlayer)

@@ -42,7 +42,6 @@ public class PlayerMovement : MonoBehaviour
         Camera.main.GetComponent<CameraController>().followTrans = transform;
 
         StartCoroutine(SendPosition());
-        StartCoroutine(SendState());
     }
 
     private void Update()
@@ -175,28 +174,5 @@ public class PlayerMovement : MonoBehaviour
         }
 
         StartCoroutine(SendPosition());
-    }
-
-    private IEnumerator SendState()
-    {
-        int rowNum = TeamsUpdater.GetIndexOfPlayerState(GamePlayerInfo.playerNum / 2, 0, CloudGameData.gameNum);
-
-        WWWForm form = new WWWForm();
-        form.AddField("groupid", "pm36");
-        form.AddField("grouppw", "N3Km3yJZpM");
-        form.AddField("row", rowNum);
-        form.AddField("s4", anim.GetCurrentAnimatorStateInfo(0).tagHash);
-
-        using (UnityWebRequest webRequest = UnityWebRequest.Post(CloudGameData.PushURL, form))
-        {
-            yield return webRequest.SendWebRequest();
-
-            if (webRequest.isNetworkError)
-            {
-                Debug.LogError("An error has occurred while pushing.\n" + webRequest.error);
-            }
-        }
-
-        StartCoroutine(SendState());
     }
 }

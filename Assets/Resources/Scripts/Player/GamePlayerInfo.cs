@@ -4,6 +4,8 @@ using UnityEngine.InputSystem;
 public class GamePlayerInfo : MonoBehaviour
 {
     public static int playerNum = 0; // Evens are humans, odds are fairies.
+    public static int points = 0;
+
     public GameObject[] players = new GameObject[8];
 
     public PlayerInput input;
@@ -62,6 +64,8 @@ public class GamePlayerInfo : MonoBehaviour
                     {
                         PlayerCloudMovement cloudMov = players[i].AddComponent<PlayerCloudMovement>();
                         cloudMov.playerNum = i;
+
+                        cloudMov.ground = ground;
                     }
                     else
                     {

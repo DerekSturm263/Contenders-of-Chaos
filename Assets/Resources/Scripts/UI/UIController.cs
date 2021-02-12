@@ -571,6 +571,7 @@ public class UIController : MonoBehaviour
             yield return webRequest.SendWebRequest();
         }
 
+        ChooseGameMode(CloudGameData.gameNum); // Change to button when you add more gamemodes.
         SceneManager.LoadScene("Main");
     }
 
@@ -579,10 +580,12 @@ public class UIController : MonoBehaviour
         if (CloudGameData.isHosting)
         {
             StartCoroutine(SendGemSeed());
+            StartCoroutine(SendLevelSeed());
         }
         else
         {
             StartCoroutine(GetGemSeed());
+            StartCoroutine(GetTileSeed());
         }
     }
 
@@ -596,7 +599,7 @@ public class UIController : MonoBehaviour
         form.AddField("row", CloudGameData.gameNum + 230);
         form.AddField("s4", SpawnGems.seed);
 
-        using (UnityWebRequest webRequest = UnityWebRequest.Get(CloudGameData.PushURL))
+        using (UnityWebRequest webRequest = UnityWebRequest.Post(CloudGameData.PushURL, form))
         {
             yield return webRequest.SendWebRequest();
 
@@ -607,6 +610,31 @@ public class UIController : MonoBehaviour
             else
             {
                 Debug.Log("Seed " + SpawnGems.seed + " succesfully pushed.");
+            }
+        }
+    }
+
+    private IEnumerator SendLevelSeed()
+    {
+        ProceduralTilemap.tileSeed = UnityEngine.Random.Range(0, 99999);
+
+        WWWForm form = new WWWForm();
+        form.AddField("groupid", "pm36");
+        form.AddField("grouppw", "N3Km3yJZpM");
+        form.AddField("row", CloudGameData.gameNum + 240);
+        form.AddField("s4", ProceduralTilemap.tileSeed);
+
+        using (UnityWebRequest webRequest = UnityWebRequest.Post(CloudGameData.PushURL, form))
+        {
+            yield return webRequest.SendWebRequest();
+
+            if (webRequest.isNetworkError)
+            {
+                Debug.LogError("An error has occurred while pushing.\n" + webRequest.error);
+            }
+            else
+            {
+                Debug.Log("Seed " + ProceduralTilemap.tileSeed + " succesfully pushed.");
             }
         }
     }
@@ -624,6 +652,23 @@ public class UIController : MonoBehaviour
             else
             {
                 SpawnGems.seed = int.Parse(webRequest.downloadHandler.text.Split(',')[1]);
+            }
+        }
+    }
+
+    private IEnumerator GetTileSeed()
+    {
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(CloudGameData.PullURL + CloudGameData.gameNum + 240))
+        {
+            yield return webRequest.SendWebRequest();
+
+            if (webRequest.isNetworkError)
+            {
+                Debug.Log("An error has occurred while pulling.");
+            }
+            else
+            {
+                ProceduralTilemap.tileSeed = int.Parse(webRequest.downloadHandler.text.Split(',')[1]);
             }
         }
     }
