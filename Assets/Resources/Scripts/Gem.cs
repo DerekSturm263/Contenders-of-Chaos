@@ -4,6 +4,8 @@ using System.Collections;
 
 public class Gem : MonoBehaviour
 {
+    private GamePlayerInfo info;
+
     public enum State
     {
         Floating, Held
@@ -18,6 +20,7 @@ public class Gem : MonoBehaviour
 
     private void Awake()
     {
+        info = GamePlayerInfo.GetPlayerInfo();
         floatScript = GetComponent<Float>();
         //StartCoroutine(UpdatePosition());
     }
@@ -47,7 +50,7 @@ public class Gem : MonoBehaviour
             points = 5;
         }
 
-        transform.localScale = new Vector2(points / 3f + 0.33f, points / 3f + 0.33f);
+        transform.localScale = new Vector2(points / 3f + 0.66f, points / 3f + 0.66f);
     }
 
     public void Grab()
@@ -58,6 +61,13 @@ public class Gem : MonoBehaviour
 
     public void Drop()
     {
+        if (GemGoal.currentGems.Contains(gameObject))
+        {
+            Collect();
+            return;
+        }
+
+        holder = null;
         floatScript.enabled = true;
         floatScript.ResetPosition();
         gemState = State.Floating;
@@ -65,7 +75,7 @@ public class Gem : MonoBehaviour
 
     public void Collect()
     {
-        GamePlayerInfo.points += points;
+        info.Points += points;
         Destroy(gameObject);
     }
 

@@ -15,6 +15,9 @@ TagManager:
   - UI Player
   - Gem
   - Item
+  - Time
+  - Points
+  - Goal
   layers:
   - Default
   - TransparentFX

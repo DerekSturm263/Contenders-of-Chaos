@@ -1,10 +1,43 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
 
 public class GamePlayerInfo : MonoBehaviour
 {
+    public static int timeSet = 300;
     public static int playerNum = 0; // Evens are humans, odds are fairies.
-    public static int points = 0;
+
+    private int _points;
+    public float _timeRemaining;
+
+    public static GameObject player;
+
+    public int Points
+    {
+        get => _points;
+        set
+        {
+            _points = value;
+            UIController.UpdateTextObject(UIController.points, _points + " Points");
+        }
+    }
+
+    public float TimeRemaining
+    {
+        get => _timeRemaining;
+        set
+        {
+            _timeRemaining = value;
+            UIController.UpdateTextObject(UIController.timeRemaining, (int) _timeRemaining / 60 + ":" + ((int) _timeRemaining % 60).ToString().PadLeft(2, '0'));
+
+            if ((int)_timeRemaining == 0)
+            {
+                SceneManager.LoadScene("Results");
+            }
+        }
+    }
+
+    private bool countdown;
 
     public GameObject[] players = new GameObject[8];
 
@@ -41,6 +74,7 @@ public class GamePlayerInfo : MonoBehaviour
                     if (i % 2 == 0)
                     {
                         PlayerMovement newMove = players[i].AddComponent<PlayerMovement>();
+                        player = players[i];
 
                         input.SwitchCurrentActionMap("PC Player");
                         input.actions["Movement"].performed += ctx => newMove.Movement(ctx);
@@ -52,6 +86,7 @@ public class GamePlayerInfo : MonoBehaviour
                     else
                     {
                         FairyMovement newMove = players[i].AddComponent<FairyMovement>();
+                        player = players[i];
 
                         input.SwitchCurrentActionMap("Mobile Player");
                         input.actions["Tap Start"].performed += ctx => newMove.TapStart(ctx);
@@ -75,5 +110,27 @@ public class GamePlayerInfo : MonoBehaviour
                 }
             }
         }
+
+        StartGame();
+    }
+
+    private void Update()
+    {
+        if (!countdown)
+            return;
+
+        TimeRemaining -= Time.deltaTime;
+    }
+
+    public void StartGame()
+    {
+        TimeRemaining = timeSet;
+
+        countdown = true;
+    }
+
+    public static GamePlayerInfo GetPlayerInfo()
+    {
+        return GameObject.FindObjectOfType<GamePlayerInfo>();
     }
 }

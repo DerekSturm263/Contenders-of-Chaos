@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System;
 using UnityEngine.SceneManagement;
 using UnityEngine.Networking;
 
@@ -22,6 +21,9 @@ public class UIController : MonoBehaviour
     public GameObject mobileButton;
     public GameObject joinPrompt;
     public GameObject startGameButton;
+
+    public static TMPro.TMP_Text timeRemaining;
+    public static TMPro.TMP_Text points;
 
     private bool failedHost = false;
 
@@ -46,6 +48,12 @@ public class UIController : MonoBehaviour
             StartCoroutine(CloudGameData.ClearLocationData());
             StartCoroutine(CloudGameData.ClearStartedGameData());
         }
+
+        try
+        {
+            timeRemaining = GameObject.FindGameObjectWithTag("Time").GetComponent<TMPro.TMP_Text>();
+            points = GameObject.FindGameObjectWithTag("Points").GetComponent<TMPro.TMP_Text>();
+        } catch { }
     }
 
     private void Start()
@@ -572,6 +580,7 @@ public class UIController : MonoBehaviour
         }
 
         ChooseGameMode(CloudGameData.gameNum); // Change to button when you add more gamemodes.
+        GamePlayerInfo.timeSet = 300;
         SceneManager.LoadScene("Main");
     }
 
@@ -671,6 +680,11 @@ public class UIController : MonoBehaviour
                 ProceduralTilemap.tileSeed = int.Parse(webRequest.downloadHandler.text.Split(',')[1]);
             }
         }
+    }
+
+    public static void UpdateTextObject(TMPro.TMP_Text text, dynamic value)
+    {
+        text.text = value.ToString();
     }
 
     #region Settings
