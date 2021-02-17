@@ -91,7 +91,7 @@ public class TeamsUpdater : MonoBehaviour
                 }
             }
 
-            if (CloudGameData.isHosting && true) // teamsFull > 1
+            if (CloudGameData.isHosting && teamsFull > 1)
             {
                 UIController.GetActiveController().startGameButton.SetActive(true);
             }

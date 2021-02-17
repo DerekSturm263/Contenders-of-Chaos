@@ -16,9 +16,15 @@ public class PlayerCloudMovement : MonoBehaviour
     public Transform currentPlatform;
 
     private Vector2 oldPos, newPos;
-    private Vector2 moveVal;
+    private Vector2 moveValN;
+    private Vector2 moveValL;
 
+    [Header("Movement Settings")]
+    public float walkSpeed = 5f;
+    public float runSpeed = 10f;
     private float currentSpeed;
+
+    public float jumpSpeed = 15f;
 
     private void Awake()
     {
@@ -31,41 +37,51 @@ public class PlayerCloudMovement : MonoBehaviour
 
     private void Update()
     {
-        currentSpeed = moveVal.x * 10f;
-        anim.SetFloat("Movement Speed", Mathf.Abs(moveVal.x) / moveVal.x);
-        transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * 5f / Vector2.Distance(transform.position, targetPosition));
-        anim.speed = moveVal.x != 0f ? Mathf.Abs(rb2D.velocity.x) / currentSpeed : 1f;
+        currentSpeed = Mathf.Abs(moveValL.x) > 2f ? runSpeed : walkSpeed;
+        anim.SetBool("Running", currentSpeed == runSpeed);
+        anim.SetFloat("Movement Speed", Mathf.Abs(moveValL.x) > 0.025f ? 1f : 0f);
 
         if (currentPlatform == null)
         {
-            anim.SetFloat("Y Velocity", rb2D.velocity.y);
+            anim.SetFloat("Y Velocity", moveValL.y);
         }
         else
         {
             anim.SetFloat("Y Velocity", 0f);
         }
 
-        anim.SetBool("Running", currentSpeed > 2f);
         anim.SetBool("Grounded", IsGrounded());
 
-        if (moveVal.y > 0.1f && !IsGrounded())
+        if (moveValL.y > 0.025f)
         {
             anim.SetTrigger("Jumping");
         }
-
-        if (rb2D.velocity.x != 0)
+        else if (moveValL.y < -0.025f && !IsGrounded())
         {
-            sprtRndr.flipX = rb2D.velocity.x < 0;
+            anim.SetFloat("Y Velocity", -1f);
         }
 
-        oldPos = transform.position;
+        if (IsGrounded())
+        {
+            anim.ResetTrigger("Jumping");
+            anim.SetFloat("Y Velocity", -1f);
+        }
+
+        if (moveValL.x != 0)
+        {
+            sprtRndr.flipX = moveValL.x < 0;
+        }
+
+        transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * 5f / Vector2.Distance(transform.position, targetPosition));
+
+        newPos = transform.position;
+        moveValN = newPos - oldPos;
+        moveValL = Vector2.Lerp(moveValN, moveValL, Time.deltaTime * 5f);
     }
 
     private void LateUpdate()
     {
-        newPos = transform.position;
-        moveVal = newPos - oldPos;
-        oldPos = newPos;
+        oldPos = transform.position;
     }
 
     private bool IsGrounded()

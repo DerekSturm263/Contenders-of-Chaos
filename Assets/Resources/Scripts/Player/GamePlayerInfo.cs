@@ -97,6 +97,9 @@ public class GamePlayerInfo : MonoBehaviour
                 {
                     if (i % 2 == 0)
                     {
+                        players[i].GetComponent<BoxCollider2D>().enabled = false;
+                        players[i].GetComponent<Rigidbody2D>().gravityScale = 0f;
+
                         PlayerCloudMovement cloudMov = players[i].AddComponent<PlayerCloudMovement>();
                         cloudMov.playerNum = i;
 

@@ -682,9 +682,9 @@ public class UIController : MonoBehaviour
         }
     }
 
-    public static void UpdateTextObject(TMPro.TMP_Text text, dynamic value)
+    public static void UpdateTextObject(TMPro.TMP_Text text, string value)
     {
-        text.text = value.ToString();
+        text.text = value;
     }
 
     #region Settings
