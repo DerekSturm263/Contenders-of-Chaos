@@ -22,6 +22,9 @@ public class UIController : MonoBehaviour
     public GameObject joinPrompt;
     public GameObject startGameButton;
 
+    public GameObject fullscreenButton;
+    public GameObject fullscreenTMP;
+
     public static TMPro.TMP_Text timeRemaining;
     public static TMPro.TMP_Text points;
 
@@ -30,11 +33,19 @@ public class UIController : MonoBehaviour
     public bool resetCloudData = false;
     public bool testAsMobile = false;
 
+    public GameObject firstTimeUsernameInput;
+
+    public GameObject hostClosedGamePrompt;
+
     // Settings.
     public static float volume = 0.5f;
     public static bool useFullscreen = true;
     public static bool useParticles = true;
     public static bool usePostProcessing = true;
+
+    public static bool isPaused = false;
+
+    public static bool readyToQuit = true;
 
     private void Awake()
     {
@@ -73,6 +84,26 @@ public class UIController : MonoBehaviour
         if (!isPC && joinPrompt != null)
         {
             joinPrompt.SetActive(true);
+        }
+
+        if (fullscreenButton != null)
+        {
+            fullscreenButton.SetActive(isPC);
+        }
+        if (fullscreenTMP != null)
+        {
+            fullscreenTMP.SetActive(isPC);
+        }
+        
+        if (usernameInput != null)
+        {
+            Debug.Log(GameController.playerInfo.name);
+            usernameInput.text = GameController.playerInfo.name;
+        }
+
+        if (firstTimeUsernameInput != null && GameController.playerInfo.name == "")
+        {
+            firstTimeUsernameInput.SetActive(true);
         }
     }
 
@@ -190,6 +221,29 @@ public class UIController : MonoBehaviour
                 }
             }
 
+            for (int i = 0; i < 8; ++i)
+            {
+                WWWForm form4 = new WWWForm();
+                form4.AddField("groupid", "pm36");
+                form4.AddField("grouppw", "N3Km3yJZpM");
+                form4.AddField("row", i + 10 * (CloudGameData.gameNum + 1) + 10);
+                form4.AddField("s4", "E");
+
+                using (UnityWebRequest webRequest = UnityWebRequest.Post(CloudGameData.PushURL, form4))
+                {
+                    yield return webRequest.SendWebRequest();
+
+                    if (webRequest.isNetworkError)
+                    {
+                        Debug.LogError("An error has occurred while pushing.\n" + webRequest.error);
+                    }
+                    else
+                    {
+                        Debug.Log("Player spot at index " + (i + 10 * (CloudGameData.gameNum + 1) + 10) + " has been cleared.");
+                    }
+                }
+            }
+
             StartCoroutine(JoinGame(CloudGameData.gameNum));
         }
     }
@@ -295,7 +349,7 @@ public class UIController : MonoBehaviour
 
         for (int i = 0; i < 8; ++i)
         {
-            using (UnityWebRequest webRequest = UnityWebRequest.Get(CloudGameData.PullURL + (i + (10 * (CloudGameData.gameNum + 1) + 10))))
+            using (UnityWebRequest webRequest = UnityWebRequest.Get(CloudGameData.PullURL + (i + 10 * (CloudGameData.gameNum + 1) + 10)))
             {
                 yield return webRequest.SendWebRequest();
 
@@ -367,6 +421,8 @@ public class UIController : MonoBehaviour
 
     public void QuitGame()
     {
+        readyToQuit = false;
+
         if (CloudGameData.isHosting)
         {
             CloseGame();
@@ -398,29 +454,13 @@ public class UIController : MonoBehaviour
             {
                 Debug.LogError("An error has occurred while pushing.\n" + webRequest.error);
             }
-        }
-
-        WWWForm form3 = new WWWForm();
-        form3.AddField("groupid", "pm36");
-        form3.AddField("grouppw", "N3Km3yJZpM");
-        form3.AddField("row", CloudGameData.gameNum + 10);
-        form3.AddField("s4", "000000");
-
-        using (UnityWebRequest webRequest = UnityWebRequest.Post(CloudGameData.PushURL, form3))
-        {
-            yield return webRequest.SendWebRequest();
-
-            if (webRequest.isNetworkError)
+            else
             {
-                Debug.LogError("An error has occurred while pushing.\n" + webRequest.error);
+                Debug.Log("Game succesfully closed.");
             }
         }
 
-        for (int i = 0; i < 8; ++i)
-        {
-            StartCoroutine(ClearPlayerData(i));
-        }
-
+        readyToQuit = true;
         SceneManager.LoadScene("Host or Join Game");
     }
 
@@ -528,6 +568,7 @@ public class UIController : MonoBehaviour
             }
         }
 
+        readyToQuit = true;
         SceneManager.LoadScene("Host or Join Game");
     }
 
@@ -689,11 +730,20 @@ public class UIController : MonoBehaviour
 
     #region Settings
 
-    public void EnterUserName()
+    public void EnterUserName(GameObject panel = null)
     {
         string input = usernameInput.text;
 
+        if (input.Length < 1)
+            return;
+
         GameController.playerInfo.name = input;
+
+        Debug.Log("Username succesfully changed to " + input);
+        SaveController.Save(input);
+
+        if (panel != null)
+            panel.SetActive(false);
     }
 
     public void AdjustVolume()
@@ -721,8 +771,7 @@ public class UIController : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        //Application.wantsToQuit += () => false;
         QuitGame();
-        //Application.Quit();
+        SaveController.Save(GameController.playerInfo.name);
     }
 }

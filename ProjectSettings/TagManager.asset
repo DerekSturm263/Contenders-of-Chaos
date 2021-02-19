@@ -18,6 +18,8 @@ TagManager:
   - Time
   - Points
   - Goal
+  - UI Tap End
+  - UI Tap Start
   layers:
   - Default
   - TransparentFX

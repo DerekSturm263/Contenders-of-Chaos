@@ -175,4 +175,14 @@ public class PlayerMovement : MonoBehaviour
 
         StartCoroutine(SendPosition());
     }
+
+    private void OnEnable()
+    {
+        inputActions.Enable();
+    }
+
+    private void OnDisable()
+    {
+        inputActions.Disable();
+    }
 }

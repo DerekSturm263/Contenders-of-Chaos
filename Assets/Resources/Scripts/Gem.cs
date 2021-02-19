@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Networking;
 using System.Collections;
+using UnityEngine.Experimental.Rendering.Universal;
 
 public class Gem : MonoBehaviour
 {
@@ -13,6 +14,7 @@ public class Gem : MonoBehaviour
     public State gemState = State.Floating;
 
     private Float floatScript;
+    private Light2D glow;
     public Transform holder;
 
     private int points = 0;
@@ -22,6 +24,9 @@ public class Gem : MonoBehaviour
     {
         info = GamePlayerInfo.GetPlayerInfo();
         floatScript = GetComponent<Float>();
+        glow = GetComponent<Light2D>();
+
+        glow.enabled = GameController.playerInfo.deviceType == PlayerData.Device_Type.MB;
         //StartCoroutine(UpdatePosition());
     }
 
@@ -56,6 +61,7 @@ public class Gem : MonoBehaviour
     public void Grab()
     {
         floatScript.enabled = false;
+        glow.enabled = true;
         gemState = State.Held;
     }
 

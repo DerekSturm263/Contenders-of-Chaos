@@ -6,6 +6,7 @@ public class GameController : MonoBehaviour
 
     private void Awake()
     {
+        SaveController.Load();
         Initialize();
     }
 
@@ -14,7 +15,7 @@ public class GameController : MonoBehaviour
         if (playerInfo != null)
             return;
 
-        playerInfo = new PlayerData(SystemInfo.deviceName, UIController.GetActiveController().testAsMobile ? PlayerData.Device_Type.MB : PlayerData.Device_Type.Null);
+        playerInfo = new PlayerData("", UIController.GetActiveController().testAsMobile ? PlayerData.Device_Type.MB : PlayerData.Device_Type.Null);
         Debug.Log("Created new PlayerData with username: " + playerInfo.name + " and deviceType: " + playerInfo.deviceType);
     }
 }

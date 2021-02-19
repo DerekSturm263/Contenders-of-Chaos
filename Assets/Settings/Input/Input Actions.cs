@@ -291,7 +291,7 @@ public class @InputActions : IInputActionCollection, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""14cdf4fd-6fb8-45ec-9bb4-b4c71bf70bd1"",
-                    ""path"": ""<Pointer>/position"",
+                    ""path"": ""<Touchscreen>/primaryTouch/startPosition"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Touchscreen"",
@@ -302,7 +302,7 @@ public class @InputActions : IInputActionCollection, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""0c9afe4c-290c-4912-97a0-55a87245f79b"",
-                    ""path"": ""<Pointer>/position"",
+                    ""path"": ""<Touchscreen>/primaryTouch/position"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Touchscreen"",
