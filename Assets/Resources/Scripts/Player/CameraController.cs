@@ -1,17 +1,15 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-    public Transform followTrans;
+    [HideInInspector] public Transform followTrans;
     [SerializeField] private float speed;
 
-    private Vector3 offset;
+    private Vector3 offset = new Vector3(0f, 0f, 0f);
 
-    private void Awake()
+    private void Start()
     {
-        offset = transform.position - followTrans.position;
+        offset.z = transform.position.z - followTrans.position.z;
     }
 
     private void Update()

@@ -1,143 +1,125 @@
 ﻿using System.Collections;
-using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine;
 
-public class CloudGameData : MonoBehaviour
+public static class CloudGameData
 {
+    public const string PullURL = "http://vgdapi.basmati.org/gets4.php?groupid=pm36&row=";
+    public const string PushURL = "http://vgdapi.basmati.org/mods4.php";
+
     public static bool isHosting = false;
     public static string inputRoomCode = "000000";
     public static int gameNum;
 
     public static string roomNum = "000000";
 
-    private void Awake()
-    {
-        if (isHosting)
-        {
-            try
-            {
-                StartCoroutine(HostGame());
-            }
-            catch
-            {
-                Debug.LogError("An error has occurred whilst trying to host a game. Please try again later.");
-            }
-        }
-        else
-        {
-            StartCoroutine(JoinGame(roomNum));
-        }
-    }
-
-    public static CloudGameData GetCurrentCloudData()
-    {
-        return GameObject.FindObjectOfType<CloudGameData>();
-    }
-
-    public IEnumerator HostGame()
+    public static IEnumerator ClearGameData()
     {
         for (int i = 0; i < 10; ++i)
         {
-            using (UnityWebRequest webRequest = UnityWebRequest.Get(CloudDataController.PullURL + i))
+            WWWForm form = new WWWForm();
+            form.AddField("groupid", "pm36");
+            form.AddField("grouppw", "N3Km3yJZpM");
+            form.AddField("row", i);
+            form.AddField("s4", "False");
+
+            using (UnityWebRequest webRequest = UnityWebRequest.Post(PushURL, form))
             {
                 yield return webRequest.SendWebRequest();
 
-                string[] pages = i.ToString().Split('/');
-                int page = pages.Length - 1;
-
                 if (webRequest.isNetworkError)
                 {
-                    Debug.LogError("An error has occurred while pulling.\n" + webRequest.error);
-                }
-                else
-                {
-                    if (webRequest.downloadHandler.text.Contains("False"))
-                    {
-                        gameNum = i;
-                        break;
-                    }
+                    Debug.LogError("An error has occurred while pushing.\n" + webRequest.error);
                 }
             }
         }
-
-        WWWForm form = new WWWForm();
-        form.AddField("groupid", "vgd21");
-        form.AddField("grouppw", "foobar21");
-        form.AddField("row", gameNum);
-        form.AddField("s4", "True");
-
-        using (UnityWebRequest webRequest = UnityWebRequest.Post(CloudDataController.PushURL, form))
-        {
-            yield return webRequest.SendWebRequest();
-
-            if (webRequest.isNetworkError)
-            {
-                Debug.LogError("An error has occurred while pushing.\n" + webRequest.error);
-            }
-        }
-
-        int[] numbers = new int[6];
-        string code = "";
-
-        for (int i = 0; i < numbers.Length; ++i)
-        {
-            numbers[i] = Random.Range(0, 10);
-            code += numbers[i];
-        }
-
-        WWWForm form2 = new WWWForm();
-        form2.AddField("groupid", "vgd21");
-        form2.AddField("grouppw", "foobar21");
-        form2.AddField("row", gameNum + 10);
-        form2.AddField("s4", code);
-
-        using (UnityWebRequest webRequest = UnityWebRequest.Post(CloudDataController.PushURL, form2))
-        {
-            yield return webRequest.SendWebRequest();
-
-            if (webRequest.isNetworkError)
-            {
-                Debug.LogError("An error has occurred while pushing.\n" + webRequest.error);
-            }
-            else
-            {
-                Debug.Log("New game successfully hosted at index: " + gameNum + " with code: " + code);
-
-                roomNum = code;
-                UIController.GetActiveController().UpdateRoomNumber(roomNum);
-            }
-        }
-
-        StartCoroutine(TeamsUpdater.GetTeamsUpdater().UpdateTeams());
     }
 
-    public IEnumerator JoinGame(string input)
+    public static IEnumerator ClearCodeData()
     {
         for (int i = 10; i < 20; ++i)
         {
-            using (UnityWebRequest webRequest = UnityWebRequest.Get(CloudDataController.PullURL + i))
+            WWWForm form = new WWWForm();
+            form.AddField("groupid", "pm36");
+            form.AddField("grouppw", "N3Km3yJZpM");
+            form.AddField("row", i);
+            form.AddField("s4", "000000");
+
+            using (UnityWebRequest webRequest = UnityWebRequest.Post(PushURL, form))
             {
                 yield return webRequest.SendWebRequest();
 
-                string[] pages = i.ToString().Split('/');
-                int page = pages.Length - 1;
-
                 if (webRequest.isNetworkError)
                 {
-                    Debug.LogError("An error has occurred while pulling.\n" + webRequest.error);
-                }
-                else
-                {
-                    if (webRequest.downloadHandler.text.Contains(input))
-                    {
-                        Debug.Log("Game at index: " + gameNum + " has been succesfully joined.");
-                        UIController.GetActiveController().UpdateRoomNumber(roomNum);
-                        break;
-                    }
+                    Debug.LogError("An error has occurred while pushing.\n" + webRequest.error);
                 }
             }
         }
+    }
 
-        StartCoroutine(TeamsUpdater.GetTeamsUpdater().UpdateTeams());
+    public static IEnumerator ClearPlayerData()
+    {
+        for (int i = 20; i < 118; ++i)
+        {
+            WWWForm form = new WWWForm();
+            form.AddField("groupid", "pm36");
+            form.AddField("grouppw", "N3Km3yJZpM");
+            form.AddField("row", i);
+            form.AddField("s4", "E");
+
+            using (UnityWebRequest webRequest = UnityWebRequest.Post(PushURL, form))
+            {
+                yield return webRequest.SendWebRequest();
+
+                if (webRequest.isNetworkError)
+                {
+                    Debug.LogError("An error has occurred while pushing.\n" + webRequest.error);
+                }
+            }
+        }
+    }
+
+    public static IEnumerator ClearLocationData()
+    {
+        for (int i = 120; i < 218; ++i)
+        {
+            WWWForm form = new WWWForm();
+            form.AddField("groupid", "pm36");
+            form.AddField("grouppw", "N3Km3yJZpM");
+            form.AddField("row", i);
+            form.AddField("s4", "0|0");
+
+            using (UnityWebRequest webRequest = UnityWebRequest.Post(PushURL, form))
+            {
+                yield return webRequest.SendWebRequest();
+
+                if (webRequest.isNetworkError)
+                {
+                    Debug.LogError("An error has occurred while pushing.\n" + webRequest.error);
+                }
+            }
+        }
+    }
+
+    public static IEnumerator ClearStartedGameData()
+    {
+        for (int i = 200; i < 229; ++i)
+        {
+            WWWForm form = new WWWForm();
+            form.AddField("groupid", "pm36");
+            form.AddField("grouppw", "N3Km3yJZpM");
+            form.AddField("row", i);
+            form.AddField("s4", "False");
+
+            using (UnityWebRequest webRequest = UnityWebRequest.Post(PushURL, form))
+            {
+                yield return webRequest.SendWebRequest();
+
+                if (webRequest.isNetworkError)
+                {
+                    Debug.LogError("An error has occurred while pushing.\n" + webRequest.error);
+                }
+            }
+        }
     }
 }

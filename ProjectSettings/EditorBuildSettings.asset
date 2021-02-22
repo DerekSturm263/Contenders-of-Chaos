@@ -6,15 +6,26 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Resources/Scenes/Title.unity
+    guid: 6e5de7345ca607c4aa66871e04663a57
+  - enabled: 1
+    path: Assets/Resources/Scenes/Settings.unity
+    guid: 106aba0562be02c4996f8395e56eed8c
+  - enabled: 1
+    path: Assets/Resources/Scenes/Mobile App.unity
+    guid: 933cdc7d31f71ef4badecfbfdd4362f4
+  - enabled: 1
     path: Assets/Resources/Scenes/Host Or Join Game.unity
     guid: 6aa56c510c64ecb4aba490065c84bad4
   - enabled: 1
     path: Assets/Resources/Scenes/Team Select.unity
     guid: d7a8cdd0109f7314990ad8616e4537fb
   - enabled: 1
-    path: Assets/Resources/Scenes/Title.unity
-    guid: 6e5de7345ca607c4aa66871e04663a57
-  - enabled: 1
     path: Assets/Resources/Scenes/Main.unity
     guid: 2cda990e2423bbf4892e6590ba056729
-  m_configObjects: {}
+  - enabled: 1
+    path: Assets/Resources/Scenes/Results.unity
+    guid: ba729a6f1e5442e489f033fa98f7ed85
+  m_configObjects:
+    com.unity.input.settings: {fileID: 11400000, guid: c193c730b24d615439f4eb6ab9afb7a3,
+      type: 2}

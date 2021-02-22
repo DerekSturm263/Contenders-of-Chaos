@@ -1,37 +1,41 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 
 public class Team : MonoBehaviour
 {
-    public PlayerData[] players = new PlayerData[2];
+    private GameObject emptyBG;
+    private GameObject emptyLabel;
+    private GameObject[] playerBGs = new GameObject[2];
+    private GameObject teamNumber;
 
-    private GameObject[] teamMembers = new GameObject[2];
-    private GameObject emptyObj;
-
-    private TMPro.TMP_Text p1NameObj, p2NameObj;
+    private TMPro.TMP_Text p1Name, p2Name;
+    private PlayerData[] players = new PlayerData[2];
 
     private void Awake()
     {
         foreach (Transform t in GetComponentsInChildren<Transform>())
         {
-            if (t.CompareTag("UI Panel"))
+            if (t.CompareTag("UI Label"))
             {
-                teamMembers[0] = t.gameObject;
-            }
-            else if (t.CompareTag("UI Label"))
-            {
-                teamMembers[1] = t.gameObject;
+                teamNumber = t.gameObject;
             }
             else if (t.CompareTag("UI Empty"))
             {
-                emptyObj = t.gameObject;
+                if (emptyBG == null) emptyBG = t.gameObject;
+                else if (emptyLabel == null) emptyLabel = t.gameObject;
             }
             else if (t.CompareTag("UI P1 Name"))
             {
-                p1NameObj = t.GetComponent<TMPro.TMP_Text>();
+                p1Name = t.GetComponent<TMPro.TMP_Text>();
             }
             else if (t.CompareTag("UI P2 Name"))
             {
-                p2NameObj = t.GetComponent<TMPro.TMP_Text>();
+                p2Name = t.GetComponent<TMPro.TMP_Text>();
+            }
+            else if (t.CompareTag("UI Player"))
+            {
+                if (playerBGs[0] == null) playerBGs[0] = t.gameObject;
+                else if (playerBGs[1] == null) playerBGs[1] = t.gameObject;
             }
         }
     }
@@ -64,24 +68,46 @@ public class Team : MonoBehaviour
 
     public void UpdateInfo()
     {
-        emptyObj.SetActive(players[0] != null && players[1] != null);
+        bool isEmpty = players[0] == null && players[1] == null;
+
+        emptyBG.GetComponent<Image>().enabled = isEmpty;
+        emptyLabel.SetActive(isEmpty);
+
+        teamNumber.SetActive(!isEmpty);
+        playerBGs[0].SetActive(!isEmpty);
+        playerBGs[1].SetActive(!isEmpty);
 
         if (players[0] != null)
         {
-            p1NameObj.text = players[0].name;
+            p1Name.text = players[0].name;
         }
         else
         {
-            p1NameObj.text = "";
+            p1Name.text = "";
         }
 
         if (players[1] != null)
         {
-            p2NameObj.text = players[1].name;
+            p2Name.text = players[1].name;
         }
         else
         {
-            p2NameObj.text = "";
+            p2Name.text = "";
         }
+    }
+
+    public PlayerData GetPlayer(int i)
+    {
+        return players[i];
+    }
+
+    public PlayerData[] GetPlayers()
+    {
+        return players;
+    }
+
+    public bool IsEmpty()
+    {
+        return GetPlayer(0) == null && GetPlayer(1) == null;
     }
 }

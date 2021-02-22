@@ -12,6 +12,14 @@ TagManager:
   - Team
   - Room Number
   - Room Code
+  - UI Player
+  - Gem
+  - Item
+  - Time
+  - Points
+  - Goal
+  - UI Tap End
+  - UI Tap Start
   layers:
   - Default
   - TransparentFX
@@ -22,8 +30,8 @@ TagManager:
   - 
   - 
   - Ground
-  - 
-  - 
+  - CanBeSeenByPlayer
+  - CanBeSeenByFairy
   - 
   - 
   - 
@@ -57,6 +65,9 @@ TagManager:
     locked: 0
   - name: Player
     uniqueID: 2933974095
+    locked: 0
+  - name: Particles
+    uniqueID: 2535442663
     locked: 0
   - name: UI
     uniqueID: 1529032619
