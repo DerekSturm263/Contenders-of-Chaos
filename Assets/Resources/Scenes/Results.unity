@@ -236,7 +236,7 @@ GameObject:
   - component: {fileID: 404244130}
   - component: {fileID: 404244129}
   m_Layer: 5
-  m_Name: Results - Label (1)
+  m_Name: Winner - Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -280,7 +280,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'The Winner is: ???'
+  m_text: 'The Winner Is:'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -313,7 +313,7 @@ MonoBehaviour:
   m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 80
-  m_fontStyle: 16
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -1876,6 +1876,17 @@ MonoBehaviour:
   testAsMobile: 0
   firstTimeUsernameInput: {fileID: 0}
   hostClosedGamePrompt: {fileID: 0}
+  winnerText: {fileID: 404244129}
+  teamPoints:
+  - {fileID: 2050117264}
+  - {fileID: 497861610}
+  - {fileID: 555357980}
+  - {fileID: 967220473}
+  teams:
+  - {fileID: 145293593}
+  - {fileID: 539332168}
+  - {fileID: 1996745630}
+  - {fileID: 1337606257}
 --- !u!4 &1759311868
 Transform:
   m_ObjectHideFlags: 0
