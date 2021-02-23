@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
+using UnityEngine.Networking;
+using System.Collections;
 
 public class GamePlayerInfo : MonoBehaviour
 {
@@ -65,7 +67,7 @@ public class GamePlayerInfo : MonoBehaviour
         
         for (int i = 0; i < 8; i++)
         {
-            if (TeamsUpdater.teams[i / 2].GetPlayer(i % 2 == 0 ? 0 : 1) != null)
+            if (TeamsUpdater.teams[i / 2].GetPlayers()[i % 2 == 0 ? 0 : 1] != null)
             {
                 players[i].SetActive(true);
 
@@ -115,6 +117,11 @@ public class GamePlayerInfo : MonoBehaviour
         }
 
         StartGame();
+
+        if (playerNum % 2 != 0)
+        {
+            StartCoroutine(PullPoints());
+        }
     }
 
     private void Update()
@@ -135,5 +142,29 @@ public class GamePlayerInfo : MonoBehaviour
     public static GamePlayerInfo GetPlayerInfo()
     {
         return GameObject.FindObjectOfType<GamePlayerInfo>();
+    }
+
+    private IEnumerator PullPoints()
+    {
+        int rowNum = Gem.PointsRowNum(CloudGameData.gameNum, playerNum / 2);
+
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(CloudGameData.PullURL + rowNum))
+        {
+            yield return webRequest.SendWebRequest();
+
+            string[] pages = rowNum.ToString().Split('/');
+            int page = pages.Length - 1;
+
+            if (webRequest.isNetworkError)
+            {
+                Debug.LogError("An error has occurred while pulling.\n" + webRequest.error);
+            }
+            else
+            {
+                Points = int.Parse(webRequest.downloadHandler.text.Split(',')[1]);
+            }
+        }
+
+        StartCoroutine(PullPoints());
     }
 }

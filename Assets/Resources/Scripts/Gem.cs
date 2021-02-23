@@ -82,6 +82,7 @@ public class Gem : MonoBehaviour
     public void Collect()
     {
         info.Points += points;
+        StartCoroutine(PushPoints());
         Destroy(gameObject);
     }
 
@@ -106,5 +107,31 @@ public class Gem : MonoBehaviour
         }
 
         StartCoroutine(UpdatePosition());
+    }
+
+    private IEnumerator PushPoints()
+    {
+        int rowNum = PointsRowNum(CloudGameData.gameNum, GamePlayerInfo.playerNum / 2);
+
+        WWWForm form = new WWWForm();
+        form.AddField("groupid", "pm36");
+        form.AddField("grouppw", "N3Km3yJZpM");
+        form.AddField("row", rowNum);
+        form.AddField("s4", info.Points);
+
+        using (UnityWebRequest webRequest = UnityWebRequest.Post(CloudGameData.PushURL, form))
+        {
+            yield return webRequest.SendWebRequest();
+
+            if (webRequest.isNetworkError)
+            {
+                Debug.LogError("An error has occurred while pushing.\n" + webRequest.error);
+            }
+        }
+    }
+
+    public static int PointsRowNum(int gameNum, int teamNum)
+    {
+        return 370 + (gameNum * 4) + (teamNum);
     }
 }

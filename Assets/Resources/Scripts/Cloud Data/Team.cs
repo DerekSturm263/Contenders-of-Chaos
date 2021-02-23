@@ -96,11 +96,6 @@ public class Team : MonoBehaviour
         }
     }
 
-    public PlayerData GetPlayer(int i)
-    {
-        return players[i];
-    }
-
     public PlayerData[] GetPlayers()
     {
         return players;
@@ -108,6 +103,6 @@ public class Team : MonoBehaviour
 
     public bool IsEmpty()
     {
-        return GetPlayer(0) == null && GetPlayer(1) == null;
+        return GetPlayers()[0] == null && GetPlayers()[1] == null;
     }
 }

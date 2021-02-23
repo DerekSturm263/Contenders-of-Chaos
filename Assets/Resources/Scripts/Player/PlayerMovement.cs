@@ -17,8 +17,8 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 currentInputVal;
 
     [Header("Movement Settings")]
-    public float walkSpeed = 5f;
-    public float runSpeed = 10f;
+    public readonly float walkSpeed = 5f;
+    public readonly float runSpeed = 10f;
     private float currentSpeed;
 
     public float jumpSpeed = 15f;

@@ -2,6 +2,8 @@
 using System.Collections;
 using UnityEngine.SceneManagement;
 using UnityEngine.Networking;
+using System.Linq;
+using System;
 
 public class UIController : MonoBehaviour
 {
@@ -37,6 +39,12 @@ public class UIController : MonoBehaviour
 
     public GameObject hostClosedGamePrompt;
 
+    public TMPro.TMP_Text winnerText;
+    public TMPro.TMP_Text[] teamPoints = new TMPro.TMP_Text[4];
+    public GameObject[] teams = new GameObject[4];
+    private int[] teamPointsArray = new int[4];
+    private bool[] doneWithResults = new bool[4];
+
     // Settings.
     public static float volume = 0.5f;
     public static bool useFullscreen = true;
@@ -65,6 +73,11 @@ public class UIController : MonoBehaviour
             timeRemaining = GameObject.FindGameObjectWithTag("Time").GetComponent<TMPro.TMP_Text>();
             points = GameObject.FindGameObjectWithTag("Points").GetComponent<TMPro.TMP_Text>();
         } catch { }
+
+        if (SceneManager.GetActiveScene().name.Equals("Results"))
+        {
+            UpdateResultsInfo();
+        }
     }
 
     private void Start()
@@ -361,6 +374,7 @@ public class UIController : MonoBehaviour
                     if (GameController.playerInfo.deviceType == PlayerData.Device_Type.PC && i % 2 == 0)
                     {
                         teamNum = i / 2;
+                        Debug.Log(teamNum);
                         GameController.playerInfo.teamNum = teamNum;
                         GamePlayerInfo.playerNum = i;
                         cancelJoinTeam = false;
@@ -387,14 +401,13 @@ public class UIController : MonoBehaviour
 
             if (GameController.playerInfo.deviceType == PlayerData.Device_Type.PC)
             {
-                int rowIndex = TeamsUpdater.GetIndexOfPlayer(teamNum, (int)GameController.playerInfo.deviceType, CloudGameData.gameNum);
-                string addition = (GameController.playerInfo.deviceType == PlayerData.Device_Type.PC) ? "*PC*" : "*MB*";
+                int rowIndex = TeamsUpdater.GetIndexOfPlayer(teamNum, 0, CloudGameData.gameNum);
 
                 WWWForm form = new WWWForm();
                 form.AddField("groupid", "pm36");
                 form.AddField("grouppw", "N3Km3yJZpM");
                 form.AddField("row", rowIndex);
-                form.AddField("s4", addition + GameController.playerInfo.name);
+                form.AddField("s4", "*PC*" + GameController.playerInfo.name);
 
                 using (UnityWebRequest webRequest = UnityWebRequest.Post(CloudGameData.PushURL, form))
                 {
@@ -501,7 +514,7 @@ public class UIController : MonoBehaviour
 
     public void JoinTeam(int teamNum)
     {
-        if (GameController.playerInfo.teamNum != -1 || TeamsUpdater.teams[teamNum].GetPlayer(1) != null)
+        if (GameController.playerInfo.teamNum != -1 || TeamsUpdater.teams[teamNum].GetPlayers()[1] != null)
             return;
 
         StartCoroutine(MobileJoinTeam(teamNum));
@@ -539,13 +552,13 @@ public class UIController : MonoBehaviour
     {
         try
         {
-            StartCoroutine(LeaveTeam(TeamsUpdater.teams[GameController.playerInfo.teamNum], GameController.playerInfo.teamNum));
+            StartCoroutine(LeaveTeam(GameController.playerInfo.teamNum));
         } catch { }
     }
 
-    public IEnumerator LeaveTeam(Team team, int teamNum)
+    public IEnumerator LeaveTeam(int teamNum)
     {
-        team.RemovePlayer(GameController.playerInfo);
+        TeamsUpdater.teams[teamNum].RemovePlayer(GameController.playerInfo);
         GameController.playerInfo.teamNum = -1;
 
         WWWForm form = new WWWForm();
@@ -564,7 +577,7 @@ public class UIController : MonoBehaviour
             }
             else
             {
-                Debug.Log("Team at index: " + teamNum + (10 * (CloudGameData.gameNum + 1) + 10) + " has been succesfully left.");
+                Debug.Log("Team at index: " + (teamNum + (10 * (CloudGameData.gameNum + 1) + 10)) + " has been succesfully left.");
             }
         }
 
@@ -627,15 +640,40 @@ public class UIController : MonoBehaviour
 
     public void ChooseGameMode(int gameModeNum)
     {
-        if (CloudGameData.isHosting)
+        if (gameModeNum == 0)
         {
-            StartCoroutine(SendGemSeed());
-            StartCoroutine(SendLevelSeed());
+            if (CloudGameData.isHosting)
+            {
+                StartCoroutine(SendGemSeed());
+                StartCoroutine(SendLevelSeed());
+            }
+            else
+            {
+                StartCoroutine(GetGemSeed());
+                StartCoroutine(GetTileSeed());
+            }
+        }
+        else if (gameModeNum == 1)
+        {
+            if (CloudGameData.isHosting)
+            {
+
+            }
+            else
+            {
+
+            }
         }
         else
         {
-            StartCoroutine(GetGemSeed());
-            StartCoroutine(GetTileSeed());
+            if (CloudGameData.isHosting)
+            {
+
+            }
+            else
+            {
+
+            }
         }
     }
 
@@ -744,6 +782,54 @@ public class UIController : MonoBehaviour
 
         if (panel != null)
             panel.SetActive(false);
+    }
+
+    private void UpdateResultsInfo()
+    {
+        for (int i = 0; i < 4; ++i)
+        {
+            teams[i].SetActive(TeamsUpdater.teams[i].GetPlayers()[0] != null);
+            StartCoroutine(GetResults(i));
+        }
+    }
+
+    private IEnumerator GetResults(int teamNum)
+    {
+        doneWithResults[teamNum] = false;
+
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(CloudGameData.PullURL + Gem.PointsRowNum(CloudGameData.gameNum, teamNum)))
+        {
+            yield return webRequest.SendWebRequest();
+
+            if (webRequest.isNetworkError)
+            {
+                Debug.Log("An error has occurred while pulling.");
+            }
+            else
+            {
+                teamPointsArray[teamNum] = int.Parse(webRequest.downloadHandler.text.Split(',')[1]);
+                teamPoints[teamNum].text = teamPointsArray[teamNum] + " Points";
+            }
+        }
+
+        doneWithResults[teamNum] = true;
+    }
+
+    private IEnumerator DisplayWinner()
+    {
+        yield return new WaitUntil(() => doneWithResults[0] && doneWithResults[1] && doneWithResults[2] && doneWithResults[3]);
+
+        System.Collections.Generic.List<int> teamPointsList = teamPointsArray.ToList();
+        teamPointsList.Sort();
+
+        if (teamPointsList[0] != teamPointsList[1])
+        {
+            winnerText.text = "The Winner Is: " + TeamsUpdater.teams[Array.IndexOf(teamPointsArray, teamPointsList[0])].GetPlayers()[0].name + " & " + TeamsUpdater.teams[Array.IndexOf(teamPointsArray, teamPointsList[0])].GetPlayers()[1].name;
+        }
+        else
+        {
+            winnerText.text = "It's a Tie!";
+        }
     }
 
     public void AdjustVolume()
