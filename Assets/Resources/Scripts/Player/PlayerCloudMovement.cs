@@ -7,7 +7,6 @@ public class PlayerCloudMovement : MonoBehaviour
     [HideInInspector] public LayerMask ground;
 
     private Animator anim;
-    private Rigidbody2D rb2D;
     private SpriteRenderer sprtRndr;
 
     public int playerNum;
@@ -29,7 +28,6 @@ public class PlayerCloudMovement : MonoBehaviour
     private void Awake()
     {
         anim = GetComponent<Animator>();
-        rb2D = GetComponent<Rigidbody2D>();
         sprtRndr = GetComponent<SpriteRenderer>();
 
         StartCoroutine(UpdatePosition());

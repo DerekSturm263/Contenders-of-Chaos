@@ -4,7 +4,6 @@ using UnityEngine.Networking;
 
 public class FairyCloudMovement : MonoBehaviour
 {
-    private Animator anim;
     private Rigidbody2D rb2D;
     private SpriteRenderer sprtRndr;
 
@@ -13,7 +12,6 @@ public class FairyCloudMovement : MonoBehaviour
 
     private void Awake()
     {
-        anim = GetComponent<Animator>();
         rb2D = GetComponent<Rigidbody2D>();
         sprtRndr = GetComponent<SpriteRenderer>();
 

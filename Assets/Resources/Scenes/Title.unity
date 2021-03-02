@@ -3731,6 +3731,17 @@ MonoBehaviour:
   testAsMobile: 0
   firstTimeUsernameInput: {fileID: 127580377}
   hostClosedGamePrompt: {fileID: 0}
+  winnerText: {fileID: 0}
+  teamPoints:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  teams:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!4 &1955552284
 Transform:
   m_ObjectHideFlags: 0

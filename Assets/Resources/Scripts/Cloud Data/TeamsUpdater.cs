@@ -73,7 +73,7 @@ public class TeamsUpdater : MonoBehaviour
 
                     thisTeam = teams[playerNum / 2];
 
-                    p = thisTeam.GetPlayer(playerNum % 2 == 0 ? 0 : 1);
+                    p = thisTeam.GetPlayers()[playerNum % 2 == 0 ? 0 : 1];
 
                     removePlayer = true;
                 }

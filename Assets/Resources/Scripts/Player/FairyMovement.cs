@@ -8,9 +8,7 @@ using UnityEngine.InputSystem.EnhancedTouch;
 public class FairyMovement : MonoBehaviour
 {
     public InputActions inputActions;
-    private Camera cam;
 
-    private Animator anim;
     private Rigidbody2D rb2D;
     private SpriteRenderer sprtRndr;
 
@@ -19,7 +17,7 @@ public class FairyMovement : MonoBehaviour
     private Vector2 screenTapDeltaPos;
 
     public float minJoystickDist, maxJoystickDist;
-    private float speed = 10f;
+    private readonly float speed = 10f;
 
     private RectTransform tapStart;
     private RectTransform tapEnd;
@@ -28,7 +26,6 @@ public class FairyMovement : MonoBehaviour
     {
         inputActions = new InputActions();
 
-        anim = GetComponent<Animator>();
         rb2D = GetComponent<Rigidbody2D>();
         sprtRndr = GetComponent<SpriteRenderer>();
 
