@@ -84,6 +84,7 @@ public class GamePlayerInfo : MonoBehaviour
                         input.actions["Grab"].performed += ctx => newMove.Grab();
 
                         newMove.ground = ground;
+                        StartCoroutine(PushPoints(playerNum / 2));
                     }
                     else
                     {
@@ -166,5 +167,26 @@ public class GamePlayerInfo : MonoBehaviour
         }
 
         StartCoroutine(PullPoints());
+    }
+
+    private IEnumerator PushPoints(int num)
+    {
+        int rowNum = Gem.PointsRowNum(CloudGameData.gameNum, num);
+
+        WWWForm form = new WWWForm();
+        form.AddField("groupid", "pm36");
+        form.AddField("grouppw", "N3Km3yJZpM");
+        form.AddField("row", rowNum);
+        form.AddField("s4", 0);
+
+        using (UnityWebRequest webRequest = UnityWebRequest.Post(CloudGameData.PushURL, form))
+        {
+            yield return webRequest.SendWebRequest();
+
+            if (webRequest.isNetworkError)
+            {
+                Debug.LogError("An error has occurred while pushing.\n" + webRequest.error);
+            }
+        }
     }
 }

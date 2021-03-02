@@ -677,7 +677,7 @@ public class UIController : MonoBehaviour
         }
     }
 
-    private IEnumerator SendGemSeed()
+    public static IEnumerator SendGemSeed()
     {
         SpawnGems.seed = UnityEngine.Random.Range(0, 99999);
 
@@ -727,7 +727,7 @@ public class UIController : MonoBehaviour
         }
     }
 
-    private IEnumerator GetGemSeed()
+    public static IEnumerator GetGemSeed()
     {
         using (UnityWebRequest webRequest = UnityWebRequest.Get(CloudGameData.PullURL + CloudGameData.gameNum + 230))
         {
@@ -789,7 +789,11 @@ public class UIController : MonoBehaviour
         for (int i = 0; i < 4; ++i)
         {
             teams[i].SetActive(TeamsUpdater.teams[i].GetPlayers()[0] != null);
-            StartCoroutine(GetResults(i));
+
+            if (teams[i].activeSelf)
+            {
+                StartCoroutine(GetResults(i));
+            }
         }
     }
 

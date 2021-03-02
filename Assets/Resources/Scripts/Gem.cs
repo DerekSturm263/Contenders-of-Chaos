@@ -16,9 +16,12 @@ public class Gem : MonoBehaviour
     private Float floatScript;
     private Light2D glow;
     public Transform holder;
+    public int holderPlayerNum;
 
     private int points = 0;
     public int gemNum;
+
+    public static int gemsLeft;
 
     private void Awake()
     {
@@ -27,7 +30,7 @@ public class Gem : MonoBehaviour
         glow = GetComponent<Light2D>();
 
         glow.enabled = GameController.playerInfo.deviceType == PlayerData.Device_Type.MB;
-        //StartCoroutine(UpdatePosition());
+        //StartCoroutine(SendHolderInfo());
     }
 
     private void Update()
@@ -83,18 +86,33 @@ public class Gem : MonoBehaviour
     {
         info.Points += points;
         StartCoroutine(PushPoints());
+        --gemsLeft;
+        StartCoroutine(SendHolderInfo(true));
+
+        if (gemsLeft < 1)
+        {
+            StartCoroutine(UIController.SendGemSeed());
+            SpawnGems.LayoutGems(SpawnGems.seed);
+        }
+
         Destroy(gameObject);
     }
 
-    private IEnumerator UpdatePosition()
+    private IEnumerator SendHolderInfo(bool destroy = false)
     {
-        int rowNum = -1; // Set row num based on gem num.
+        int rowNum = GemRowNum(CloudGameData.gameNum, gemNum);
+        int playerHolderNum = destroy ? -2 : -1; // -1 means no player, -2 means destroy.
+
+        if (holder != null && !destroy)
+        {
+            playerHolderNum = GamePlayerInfo.playerNum;
+        }
 
         WWWForm form = new WWWForm();
         form.AddField("groupid", "pm36");
         form.AddField("grouppw", "N3Km3yJZpM");
         form.AddField("row", rowNum);
-        form.AddField("s4", transform.position.x.ToString() + "|" + transform.position.y.ToString());
+        form.AddField("s4", playerHolderNum);
 
         using (UnityWebRequest webRequest = UnityWebRequest.Post(CloudGameData.PushURL, form))
         {
@@ -106,7 +124,55 @@ public class Gem : MonoBehaviour
             }
         }
 
-        StartCoroutine(UpdatePosition());
+        if (!destroy)
+        {
+            StartCoroutine(SendHolderInfo());
+        }
+    }
+
+    private IEnumerator GetGemHolder()
+    {
+        int rowNum = GemRowNum(CloudGameData.gameNum, gemNum);
+        int gemStateNum = -3;
+
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(CloudGameData.PullURL + rowNum))
+        {
+            yield return webRequest.SendWebRequest();
+
+            string[] pages = rowNum.ToString().Split('/');
+            int page = pages.Length - 1;
+
+            if (webRequest.isNetworkError)
+            {
+                Debug.LogError("An error has occurred while pulling.\n" + webRequest.error);
+            }
+            else
+            {
+                gemStateNum = int.Parse(webRequest.downloadHandler.text.Split(',')[1]);
+            }
+        }
+
+        if (gemStateNum == -2) // Destroys the gem.
+        {
+            --gemsLeft;
+            Destroy(gameObject);
+        }
+        else if (gemStateNum == -1 && gemState == State.Held) // Sets the gem down.
+        {
+            holder = null;
+            floatScript.enabled = true;
+            floatScript.ResetPosition();
+            gemState = State.Floating;
+        }
+        else // Player at gemStateNum holds the gem.
+        {
+            floatScript.enabled = false;
+            glow.enabled = true;
+            gemState = State.Held;
+            holderPlayerNum = gemStateNum;
+        }
+
+        StartCoroutine(GetGemHolder());
     }
 
     private IEnumerator PushPoints()
@@ -133,5 +199,10 @@ public class Gem : MonoBehaviour
     public static int PointsRowNum(int gameNum, int teamNum)
     {
         return 370 + (gameNum * 4) + (teamNum);
+    }
+
+    public static int GemRowNum(int gameNum, int gemNumber)
+    {
+        return 420 + (gameNum * 12) + (gemNumber);
     }
 }

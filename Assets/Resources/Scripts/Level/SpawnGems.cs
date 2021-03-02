@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 public class SpawnGems : MonoBehaviour
 {
-    public GameObject gemPrefab;
+    public static GameObject gemPrefab;
 
-    public int levelNum = 0;
-    private Dictionary<int, List<Vector2>> positions; // Key: Level Num, Value: Gem Position.
+    public static int levelNum = 0;
+    public static Dictionary<int, List<Vector2>> positions; // Key: Level Num, Value: Gem Position.
 
-    public int count = 16;
+    public static int count = 12;
     public static int seed;
 
     private void Awake()
@@ -25,7 +25,12 @@ public class SpawnGems : MonoBehaviour
         LayoutGems(seed);
     }
 
-    private void Shuffle<T>(ref Dictionary<int, List<T>> gemOrder, int rSeed)
+    public static Transform GetTransform()
+    {
+        return FindObjectOfType<SpawnGems>().transform;
+    }
+
+    public static void Shuffle<T>(ref Dictionary<int, List<T>> gemOrder, int rSeed)
     {
         Random.InitState(rSeed);
 
@@ -38,14 +43,15 @@ public class SpawnGems : MonoBehaviour
         }
     }
 
-    public void LayoutGems(int rSeed)
+    public static void LayoutGems(int rSeed)
     {
         Shuffle(ref positions, rSeed);
 
         Random.InitState(rSeed);
         for (int i = 0; i < count; ++i)
         {
-            GameObject newGem = Instantiate(gemPrefab, transform);
+            GameObject newGem = Instantiate(gemPrefab, GetTransform());
+            ++Gem.gemsLeft;
             newGem.transform.position = positions[levelNum][i];
             newGem.GetComponent<Gem>().gemNum = i;
             newGem.GetComponent<Gem>().SetWorth(Random.Range(1, 9));
