@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine.Networking;
 using UnityEngine.InputSystem;
 
-[RequireComponent(typeof(Rigidbody2D), typeof(BoxCollider2D))]
+[RequireComponent(typeof(Rigidbody2D), typeof(CapsuleCollider2D))]
 public class PlayerMovement : MonoBehaviour
 {
     public InputActions inputActions;
@@ -30,6 +30,8 @@ public class PlayerMovement : MonoBehaviour
 
     private GameObject dustParticles;
 
+    private bool isWallJumping;
+
     private void Awake()
     {
         inputActions = new InputActions();
@@ -48,7 +50,20 @@ public class PlayerMovement : MonoBehaviour
     {
         Run();
         anim.speed = currentInputVal.x != 0f ? Mathf.Abs(rb2D.velocity.x) / currentSpeed : 1f;
-        rb2D.velocity = new Vector3(currentInputVal.x * currentSpeed, rb2D.velocity.y);
+
+        if (!isWallJumping)
+        {
+            rb2D.velocity = new Vector3(currentInputVal.x * currentSpeed, rb2D.velocity.y);
+        }
+        else
+        {
+            rb2D.velocity = new Vector3(rb2D.velocity.x + currentInputVal.x * currentSpeed * Time.deltaTime, rb2D.velocity.y);
+        }
+
+        if (rb2D.velocity.y < 0f)
+        {
+            isWallJumping = false;
+        }
 
         if (currentPlatform == null)
         {
@@ -60,6 +75,14 @@ public class PlayerMovement : MonoBehaviour
         }
 
         anim.SetBool("Grounded", IsGrounded());
+
+        if (IsWallSliding(out int wallSide))
+        {
+            if (wallSide == (int)(currentInputVal.x / Mathf.Abs(currentInputVal.x)) && !IsGrounded())
+            {
+                rb2D.velocity = new Vector2(rb2D.velocity.x, currentSpeed == runSpeed ? -6f : -4f);
+            }
+        }
     }
 
     public void Movement(InputAction.CallbackContext ctx)
@@ -76,12 +99,29 @@ public class PlayerMovement : MonoBehaviour
 
     public void Jump()
     {
+        if (IsWallSliding(out int wallSide))
+        {
+            if (wallSide == (int) (currentInputVal.x / Mathf.Abs(currentInputVal.x)))
+            {
+                WallJump(-wallSide);
+                return;
+            }
+        }
+
         if (!IsGrounded())
             return;
 
         GameObject newDust = Instantiate(dustParticles, transform.position - new Vector3(0f, 0.5f), Quaternion.identity);
         newDust.GetComponent<SpriteRenderer>().flipX = sprtRndr.flipX;
         rb2D.AddForce(new Vector2(0f, jumpSpeed), ForceMode2D.Impulse);
+        anim.SetTrigger("Jumping");
+    }
+
+    public void WallJump(int direction)
+    {
+        isWallJumping = true;
+        rb2D.AddForce(new Vector2(jumpSpeed * direction, 0f), ForceMode2D.Impulse);
+        rb2D.velocity = new Vector2(rb2D.velocity.x, jumpSpeed);
         anim.SetTrigger("Jumping");
     }
 
@@ -110,8 +150,6 @@ public class PlayerMovement : MonoBehaviour
 
             if (thisGem.gemState == Gem.State.Floating && heldItem == null)
             {
-                overlappingObject.layer = 0;
-
                 thisGem.Grab();
                 heldItem = overlappingObject;
                 thisGem.holder = transform;
@@ -126,6 +164,15 @@ public class PlayerMovement : MonoBehaviour
     private bool IsGrounded()
     {
         return Physics2D.BoxCast(transform.position - new Vector3(0f, 1f), new Vector2(0.5f, 0.125f), 0f, Vector2.down, 0.05f, ground);
+    }
+
+    private bool IsWallSliding(out int wallSide)
+    {
+        bool leftWall = Physics2D.BoxCast(transform.position, new Vector2(0.125f, 0.75f), 0f, Vector2.left, 0.9f, ground);
+        bool rightWall = Physics2D.BoxCast(transform.position, new Vector2(0.125f, 0.75f), 0f, Vector2.right, 0.9f, ground);
+        wallSide = leftWall ? -1 : rightWall ? 1 : 0;
+
+        return leftWall || rightWall;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)

@@ -122,4 +122,41 @@ public static class CloudGameData
             }
         }
     }
+
+    public static IEnumerator ClearGemSeeds()
+    {
+        yield return null;
+    }
+
+    public static IEnumerator ClearLevelSeeds()
+    {
+        yield return null;
+    }
+
+    public static IEnumerator ClearTeamPoints()
+    {
+        yield return null;
+    }
+
+    public static IEnumerator ClearGemStates()
+    {
+        for (int i = 420; i < 540; ++i)
+        {
+            WWWForm form = new WWWForm();
+            form.AddField("groupid", "pm36");
+            form.AddField("grouppw", "N3Km3yJZpM");
+            form.AddField("row", i);
+            form.AddField("s4", -1);
+
+            using (UnityWebRequest webRequest = UnityWebRequest.Post(PushURL, form))
+            {
+                yield return webRequest.SendWebRequest();
+
+                if (webRequest.isNetworkError)
+                {
+                    Debug.LogError("An error has occurred while pushing.\n" + webRequest.error);
+                }
+            }
+        }
+    }
 }

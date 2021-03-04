@@ -1,7 +1,5 @@
-﻿using UnityEngine;
-using UnityEditor;
-
-[CustomEditor(typeof(SpawnGems))]
+﻿
+/*[CustomEditor(typeof(SpawnGems))]
 public class EditorGem : Editor
 {
     public override void OnInspectorGUI()
@@ -21,3 +19,4 @@ public class EditorGem : Editor
         }
     }
 }
+*/

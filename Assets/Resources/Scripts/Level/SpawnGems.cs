@@ -13,6 +13,8 @@ public class SpawnGems : MonoBehaviour
 
     private void Awake()
     {
+        gemPrefab = Resources.Load<GameObject>("Prefabs/Gem");
+
         positions = new Dictionary<int, List<Vector2>>
         {
             // I'm not particularly proud of this.
@@ -32,8 +34,6 @@ public class SpawnGems : MonoBehaviour
 
     public static void Shuffle<T>(ref Dictionary<int, List<T>> gemOrder, int rSeed)
     {
-        Random.InitState(rSeed);
-
         for (int i = 0; i < gemOrder[levelNum].Count - 1; ++i)
         {
             int r = Random.Range(i, gemOrder[levelNum].Count);
@@ -45,16 +45,17 @@ public class SpawnGems : MonoBehaviour
 
     public static void LayoutGems(int rSeed)
     {
+        Random.InitState(rSeed);
         Shuffle(ref positions, rSeed);
 
-        Random.InitState(rSeed);
         for (int i = 0; i < count; ++i)
         {
             GameObject newGem = Instantiate(gemPrefab, GetTransform());
-            ++Gem.gemsLeft;
-            newGem.transform.position = positions[levelNum][i];
+
             newGem.GetComponent<Gem>().gemNum = i;
             newGem.GetComponent<Gem>().SetWorth(Random.Range(1, 9));
+
+            newGem.transform.position = positions[levelNum][i];
         }
     }
 

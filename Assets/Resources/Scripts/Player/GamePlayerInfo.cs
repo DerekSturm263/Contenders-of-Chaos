@@ -6,7 +6,7 @@ using System.Collections;
 
 public class GamePlayerInfo : MonoBehaviour
 {
-    public static int timeSet = 300;
+    public static int timeSet = 120;
     public static int playerNum = 0; // Evens are humans, odds are fairies.
 
     private int _points;
@@ -42,6 +42,7 @@ public class GamePlayerInfo : MonoBehaviour
     private bool countdown;
 
     public GameObject[] players = new GameObject[8];
+    public static Transform[] playerTransforms = new Transform[8];
 
     public PlayerInput input;
 
@@ -70,6 +71,7 @@ public class GamePlayerInfo : MonoBehaviour
             if (TeamsUpdater.teams[i / 2].GetPlayers()[i % 2 == 0 ? 0 : 1] != null)
             {
                 players[i].SetActive(true);
+                playerTransforms[i] = players[i].transform;
 
                 if (i == playerNum)
                 {
@@ -100,7 +102,7 @@ public class GamePlayerInfo : MonoBehaviour
                 {
                     if (i % 2 == 0)
                     {
-                        players[i].GetComponent<BoxCollider2D>().enabled = false;
+                        players[i].GetComponent<CapsuleCollider2D>().enabled = false;
                         players[i].GetComponent<Rigidbody2D>().gravityScale = 0f;
 
                         PlayerCloudMovement cloudMov = players[i].AddComponent<PlayerCloudMovement>();
@@ -142,7 +144,7 @@ public class GamePlayerInfo : MonoBehaviour
 
     public static GamePlayerInfo GetPlayerInfo()
     {
-        return GameObject.FindObjectOfType<GamePlayerInfo>();
+        return FindObjectOfType<GamePlayerInfo>();
     }
 
     private IEnumerator PullPoints()

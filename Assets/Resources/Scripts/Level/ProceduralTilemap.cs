@@ -22,8 +22,6 @@ public class ProceduralTilemap : MonoBehaviour
 
     private void Shuffle<T>(ref List<List<T>> walls, int rSeed)
     {
-        Random.InitState(rSeed);
-
         for (int i = 0; i < walls[0].Count; ++i)
         {
             int r = Random.Range(i, walls.Count);
@@ -39,6 +37,8 @@ public class ProceduralTilemap : MonoBehaviour
 
     public void GenerateWalls(int seed)
     {
+        Random.InitState(seed);
+
         List<List<int>> tilemapAreas = new List<List<int>> { startX, startY };
         Shuffle(ref tilemapAreas, seed);
 

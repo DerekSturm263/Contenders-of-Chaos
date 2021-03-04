@@ -100,6 +100,7 @@ public class PlayerCloudMovement : MonoBehaviour
     private IEnumerator UpdatePosition()
     {
         int rowNum = TeamsUpdater.GetIndexOfPlayerPosition(playerNum / 2, 0, CloudGameData.gameNum);
+        Debug.Log(rowNum);
 
         using (UnityWebRequest webRequest = UnityWebRequest.Get(CloudGameData.PullURL + rowNum))
         {
@@ -114,6 +115,8 @@ public class PlayerCloudMovement : MonoBehaviour
             }
             else
             {
+                Debug.Log(webRequest.downloadHandler.text);
+
                 string[] webData = webRequest.downloadHandler.text.Split(',');
                 string[] pos = webData[1].Split('|');
 

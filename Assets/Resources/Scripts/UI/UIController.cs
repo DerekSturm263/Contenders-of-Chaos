@@ -35,6 +35,8 @@ public class UIController : MonoBehaviour
     public bool resetCloudData = false;
     public bool testAsMobile = false;
 
+    public TMPro.TMP_Text versionNumber;
+
     public GameObject firstTimeUsernameInput;
 
     public GameObject hostClosedGamePrompt;
@@ -66,6 +68,7 @@ public class UIController : MonoBehaviour
             StartCoroutine(CloudGameData.ClearPlayerData());
             StartCoroutine(CloudGameData.ClearLocationData());
             StartCoroutine(CloudGameData.ClearStartedGameData());
+            StartCoroutine(CloudGameData.ClearGemStates());
         }
 
         try
@@ -87,6 +90,7 @@ public class UIController : MonoBehaviour
         if (mobileButton != null)
         {
             mobileButton.SetActive(isPC);
+            versionNumber.text = "V" + Application.version;
         }
 
         if (hostGame != null)
@@ -307,6 +311,7 @@ public class UIController : MonoBehaviour
 
         int gameNum = -1;
 
+        // Checks to see if any of the games matches the input code.
         for (int i = 10; i < 20; ++i)
         {
             using (UnityWebRequest webRequest = UnityWebRequest.Get(CloudGameData.PullURL + i))
@@ -331,6 +336,7 @@ public class UIController : MonoBehaviour
             }
         }
 
+        // Checks to see if the game with the code is open.
         using (UnityWebRequest webRequest = UnityWebRequest.Get(CloudGameData.PullURL + gameNum))
         {
             yield return webRequest.SendWebRequest();
@@ -355,26 +361,34 @@ public class UIController : MonoBehaviour
         }
     }
 
+    public static int GetPlayerSlot(int gameNum, int playerNum)
+    {
+        return playerNum + 10 * (gameNum + 1) + 10;
+    }
+
     public IEnumerator JoinGame(int gameIndex)
     {
         int teamNum = 0;
         bool cancelJoinTeam = true;
 
+        // Checks through each of the open player slots to see if it's open.
         for (int i = 0; i < 8; ++i)
         {
-            using (UnityWebRequest webRequest = UnityWebRequest.Get(CloudGameData.PullURL + (i + 10 * (CloudGameData.gameNum + 1) + 10)))
+            using (UnityWebRequest webRequest = UnityWebRequest.Get(CloudGameData.PullURL + GetPlayerSlot(gameIndex, i)))
             {
                 yield return webRequest.SendWebRequest();
 
                 string[] pages = i.ToString().Split('/');
                 int page = pages.Length - 1;
 
+                // If the length is less than 5, the slot is open. The slot will be joined based on whether the player is on mobile or PC.
                 if (webRequest.downloadHandler.text.Length < 5)
                 {
                     if (GameController.playerInfo.deviceType == PlayerData.Device_Type.PC && i % 2 == 0)
                     {
+                        Debug.Log("Player Index: " + GetPlayerSlot(gameIndex, i));
+
                         teamNum = i / 2;
-                        Debug.Log(teamNum);
                         GameController.playerInfo.teamNum = teamNum;
                         GamePlayerInfo.playerNum = i;
                         cancelJoinTeam = false;
@@ -399,6 +413,7 @@ public class UIController : MonoBehaviour
         {
             CloudGameData.gameNum = gameIndex;
 
+            // Adds the player to the proper team.
             if (GameController.playerInfo.deviceType == PlayerData.Device_Type.PC)
             {
                 int rowIndex = TeamsUpdater.GetIndexOfPlayer(teamNum, 0, CloudGameData.gameNum);
@@ -419,7 +434,7 @@ public class UIController : MonoBehaviour
                     }
                     else
                     {
-                        Debug.Log("You (" + GameController.playerInfo.name + ") have succesfully joined Team " + teamNum + " at index: " + rowIndex);
+                        Debug.Log("Player Index 2: " + rowIndex);
 
                         SceneManager.LoadScene("Team Select");
                     }
@@ -502,9 +517,17 @@ public class UIController : MonoBehaviour
         {
             HideCodePrompt();
         }
-        else if (joinInfo.activeSelf && failedHost)
+        else if (joinInfo.activeSelf)
         {
-            CloseMenu(joinInfo.gameObject);
+            if (failedHost)
+            {
+                CloseMenu(joinInfo.gameObject);
+            }
+            else
+            {
+                StopCoroutine(TryJoin(codeInput.text));
+                CloseMenu(joinInfo.gameObject);
+            }
         }
         else if (!joinInfo.activeSelf)
         {
@@ -697,7 +720,7 @@ public class UIController : MonoBehaviour
             }
             else
             {
-                Debug.Log("Seed " + SpawnGems.seed + " succesfully pushed.");
+                Debug.Log("Gem Seed: " + SpawnGems.seed);
             }
         }
     }
@@ -722,14 +745,14 @@ public class UIController : MonoBehaviour
             }
             else
             {
-                Debug.Log("Seed " + ProceduralTilemap.tileSeed + " succesfully pushed.");
+                Debug.Log("Level Seed: " + ProceduralTilemap.tileSeed);
             }
         }
     }
 
     public static IEnumerator GetGemSeed()
     {
-        using (UnityWebRequest webRequest = UnityWebRequest.Get(CloudGameData.PullURL + CloudGameData.gameNum + 230))
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(CloudGameData.PullURL + (CloudGameData.gameNum + 230)))
         {
             yield return webRequest.SendWebRequest();
 
@@ -740,13 +763,14 @@ public class UIController : MonoBehaviour
             else
             {
                 SpawnGems.seed = int.Parse(webRequest.downloadHandler.text.Split(',')[1]);
+                Debug.Log("Gem Seed: " + SpawnGems.seed);
             }
         }
     }
 
     private IEnumerator GetTileSeed()
     {
-        using (UnityWebRequest webRequest = UnityWebRequest.Get(CloudGameData.PullURL + CloudGameData.gameNum + 240))
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(CloudGameData.PullURL + (CloudGameData.gameNum + 240)))
         {
             yield return webRequest.SendWebRequest();
 
@@ -757,6 +781,7 @@ public class UIController : MonoBehaviour
             else
             {
                 ProceduralTilemap.tileSeed = int.Parse(webRequest.downloadHandler.text.Split(',')[1]);
+                Debug.Log("Seed: " + ProceduralTilemap.tileSeed);
             }
         }
     }
@@ -795,6 +820,8 @@ public class UIController : MonoBehaviour
                 StartCoroutine(GetResults(i));
             }
         }
+
+        StartCoroutine(DisplayWinner());
     }
 
     private IEnumerator GetResults(int teamNum)
@@ -821,7 +848,18 @@ public class UIController : MonoBehaviour
 
     private IEnumerator DisplayWinner()
     {
-        yield return new WaitUntil(() => doneWithResults[0] && doneWithResults[1] && doneWithResults[2] && doneWithResults[3]);
+        if (TeamsUpdater.teams[3].GetPlayers()[0] != null)
+        {
+            yield return new WaitUntil(() => doneWithResults[0] && doneWithResults[1] && doneWithResults[2] && doneWithResults[3]);
+        }
+        else if (TeamsUpdater.teams[2].GetPlayers()[0] != null)
+        {
+            yield return new WaitUntil(() => doneWithResults[0] && doneWithResults[1] && doneWithResults[2]);
+        }
+        else
+        {
+            yield return new WaitUntil(() => doneWithResults[0] && doneWithResults[1]);
+        }
 
         System.Collections.Generic.List<int> teamPointsList = teamPointsArray.ToList();
         teamPointsList.Sort();
