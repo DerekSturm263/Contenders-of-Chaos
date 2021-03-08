@@ -168,11 +168,14 @@ public class PlayerMovement : MonoBehaviour
 
     private bool IsWallSliding(out int wallSide)
     {
+        RaycastHit2D[] leftWallHit = new RaycastHit2D[1];
+        RaycastHit2D[] rightWallHit = new RaycastHit2D[1];
+
         bool leftWall = Physics2D.BoxCast(transform.position, new Vector2(0.125f, 0.75f), 0f, Vector2.left, 0.9f, ground);
         bool rightWall = Physics2D.BoxCast(transform.position, new Vector2(0.125f, 0.75f), 0f, Vector2.right, 0.9f, ground);
         wallSide = leftWall ? -1 : rightWall ? 1 : 0;
 
-        return leftWall || rightWall;
+        return (leftWall || rightWall)/* && (!leftWallHit[0].transform.CompareTag("Platform") && !rightWallHit[0].transform.CompareTag("Platform"))*/;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)

@@ -74,25 +74,27 @@ public class Team : MonoBehaviour
         emptyLabel.SetActive(isEmpty);
 
         teamNumber.SetActive(!isEmpty);
-        playerBGs[0].SetActive(!isEmpty);
-        playerBGs[1].SetActive(!isEmpty);
 
         if (players[0] != null)
         {
             p1Name.text = players[0].name;
+            playerBGs[0].SetActive(true);
         }
         else
         {
             p1Name.text = "";
+            playerBGs[0].SetActive(false);
         }
 
         if (players[1] != null)
         {
             p2Name.text = players[1].name;
+            playerBGs[1].SetActive(true);
         }
         else
         {
             p2Name.text = "";
+            playerBGs[1].SetActive(false);
         }
     }
 

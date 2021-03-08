@@ -6,7 +6,7 @@ using System.Collections;
 
 public class GamePlayerInfo : MonoBehaviour
 {
-    public static int timeSet = 120;
+    public static int timeSet = 300;
     public static int playerNum = 0; // Evens are humans, odds are fairies.
 
     private int _points;

@@ -90,7 +90,7 @@ public class UIController : MonoBehaviour
         if (mobileButton != null)
         {
             mobileButton.SetActive(isPC);
-            versionNumber.text = "V" + Application.version;
+            versionNumber.text = "V " + Application.version;
         }
 
         if (hostGame != null)
@@ -513,25 +513,32 @@ public class UIController : MonoBehaviour
 
     public void LeaveToTitle()
     {
-        if (codePrompt.activeSelf)
+        if (codePrompt)
         {
-            HideCodePrompt();
-        }
-        else if (joinInfo.activeSelf)
-        {
-            if (failedHost)
+            if (codePrompt.activeSelf)
             {
-                CloseMenu(joinInfo.gameObject);
+                HideCodePrompt();
             }
-            else
+            else if (joinInfo.activeSelf)
             {
-                StopCoroutine(TryJoin(codeInput.text));
-                CloseMenu(joinInfo.gameObject);
+                if (failedHost)
+                {
+                    CloseMenu(joinInfo.gameObject);
+                }
+                else
+                {
+                    StopCoroutine(TryJoin(codeInput.text));
+                    CloseMenu(joinInfo.gameObject);
+                }
+            }
+            else if (!joinInfo.activeSelf)
+            {
+                SceneManager.LoadScene("Title");
             }
         }
-        else if (!joinInfo.activeSelf)
+        else
         {
-            SceneManager.LoadScene("Title");
+            SceneManager.LoadScene("Host Or Join Game");
         }
     }
 
@@ -863,6 +870,7 @@ public class UIController : MonoBehaviour
 
         System.Collections.Generic.List<int> teamPointsList = teamPointsArray.ToList();
         teamPointsList.Sort();
+        teamPointsList.Reverse();
 
         if (teamPointsList[0] != teamPointsList[1])
         {

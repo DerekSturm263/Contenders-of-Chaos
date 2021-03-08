@@ -13,17 +13,20 @@ public class TeamsUpdater : MonoBehaviour
     public bool isInTeam = false;
     public bool update = false;
 
+    public GameObject hostCloseGame;
+
     private void Awake()
     {
         teamObjs.ToList().ForEach(x => teams[Array.IndexOf(teamObjs, x)] = x.GetComponent<Team>());
 
         StartCoroutine(UpdateTeams());
         StartCoroutine(CheckForStart());
+        StartCoroutine(CheckForClose());
     }
 
     public static TeamsUpdater GetTeamsUpdater()
     {
-        return GameObject.FindObjectOfType<TeamsUpdater>();
+        return FindObjectOfType<TeamsUpdater>();
     }
 
     public IEnumerator UpdateTeam(int playerNum)
@@ -152,6 +155,24 @@ public class TeamsUpdater : MonoBehaviour
         if (update)
         {
             StartCoroutine(CheckForStart());
+        }
+    }
+
+    public IEnumerator CheckForClose()
+    {
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(CloudGameData.PullURL + (CloudGameData.gameNum)))
+        {
+            yield return webRequest.SendWebRequest();
+
+            if (webRequest.downloadHandler.text.Contains("False"))
+            {
+                hostCloseGame.SetActive(true);
+            }
+        }
+
+        if (update)
+        {
+            StartCoroutine(CheckForClose());
         }
     }
 

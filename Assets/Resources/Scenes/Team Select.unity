@@ -3819,7 +3819,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: The host has disconnected.
+  m_text: The host has closed the game.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -4079,6 +4079,7 @@ MonoBehaviour:
   - {fileID: 841575666}
   isInTeam: 0
   update: 1
+  hostCloseGame: {fileID: 105644478}
 --- !u!1 &1099430057
 GameObject:
   m_ObjectHideFlags: 0
@@ -7562,6 +7563,7 @@ MonoBehaviour:
   fullscreenTMP: {fileID: 0}
   resetCloudData: 0
   testAsMobile: 0
+  versionNumber: {fileID: 0}
   firstTimeUsernameInput: {fileID: 0}
   hostClosedGamePrompt: {fileID: 105644478}
   winnerText: {fileID: 0}

@@ -20,6 +20,7 @@ TagManager:
   - Goal
   - UI Tap End
   - UI Tap Start
+  - Platform
   layers:
   - Default
   - TransparentFX
