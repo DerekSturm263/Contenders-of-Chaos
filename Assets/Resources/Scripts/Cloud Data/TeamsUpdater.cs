@@ -148,6 +148,7 @@ public class TeamsUpdater : MonoBehaviour
 
             if (webRequest.downloadHandler.text.Contains("True"))
             {
+                StopAllCoroutines();
                 SceneManager.LoadScene("Main");
             }
         }

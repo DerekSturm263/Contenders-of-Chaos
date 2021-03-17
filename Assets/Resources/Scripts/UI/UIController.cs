@@ -47,6 +47,8 @@ public class UIController : MonoBehaviour
     private int[] teamPointsArray = new int[4];
     private bool[] doneWithResults = new bool[4];
 
+    public GameObject alertButton;
+
     // Settings.
     public static float volume = 0.5f;
     public static bool useFullscreen = true;
@@ -121,6 +123,11 @@ public class UIController : MonoBehaviour
         if (firstTimeUsernameInput != null && GameController.playerInfo.name == "")
         {
             firstTimeUsernameInput.SetActive(true);
+        }
+
+        if (alertButton != null)
+        {
+            alertButton.SetActive(!isPC);
         }
     }
 
@@ -413,7 +420,7 @@ public class UIController : MonoBehaviour
         {
             CloudGameData.gameNum = gameIndex;
 
-            // Adds the player to the proper team.
+            // Adds the player to the proper team and pushes the location the player should start at.
             if (GameController.playerInfo.deviceType == PlayerData.Device_Type.PC)
             {
                 int rowIndex = TeamsUpdater.GetIndexOfPlayer(teamNum, 0, CloudGameData.gameNum);
@@ -437,6 +444,41 @@ public class UIController : MonoBehaviour
                         Debug.Log("Player Index 2: " + rowIndex);
 
                         SceneManager.LoadScene("Team Select");
+                    }
+                }
+
+                int locRowNum = TeamsUpdater.GetIndexOfPlayerPosition(teamNum, 0, CloudGameData.gameNum);
+                Vector2 location;
+
+                switch (teamNum)
+                {
+                    case 0:
+                        location = new Vector2(-8f, 0f);
+                        break;
+                    case 1:
+                        location = new Vector2(-5f, 0f);
+                        break;
+                    case 2:
+                        location = new Vector2(5f, 0f);
+                        break;
+                    default:
+                        location = new Vector2(8f, 0f);
+                        break;
+                }
+
+                WWWForm form2 = new WWWForm();
+                form2.AddField("groupid", "pm36");
+                form2.AddField("grouppw", "N3Km3yJZpM");
+                form2.AddField("row", locRowNum);
+                form2.AddField("s4", location.x.ToString() + "|" + location.y.ToString());
+
+                using (UnityWebRequest webRequest = UnityWebRequest.Post(CloudGameData.PushURL, form2))
+                {
+                    yield return webRequest.SendWebRequest();
+
+                    if (webRequest.isNetworkError)
+                    {
+                        Debug.LogError("An error has occurred while pushing.\n" + webRequest.error);
                     }
                 }
             }
@@ -576,6 +618,41 @@ public class UIController : MonoBehaviour
                 GamePlayerInfo.playerNum = teamNum * 2 + 1;
             }
         }
+
+        int locRowNum = TeamsUpdater.GetIndexOfPlayerPosition(teamNum, 1, CloudGameData.gameNum);
+        Vector2 location;
+
+        switch (teamNum)
+        {
+            case 0:
+                location = new Vector2(-7f, 1.5f);
+                break;
+            case 1:
+                location = new Vector2(-4f, 1.5f);
+                break;
+            case 2:
+                location = new Vector2(6f, 1.5f);
+                break;
+            default:
+                location = new Vector2(9f, 1.5f);
+                break;
+        }
+
+        WWWForm form2 = new WWWForm();
+        form2.AddField("groupid", "pm36");
+        form2.AddField("grouppw", "N3Km3yJZpM");
+        form2.AddField("row", locRowNum);
+        form2.AddField("s4", location.x.ToString() + "|" + location.y.ToString());
+
+        using (UnityWebRequest webRequest = UnityWebRequest.Post(CloudGameData.PushURL, form2))
+        {
+            yield return webRequest.SendWebRequest();
+
+            if (webRequest.isNetworkError)
+            {
+                Debug.LogError("An error has occurred while pushing.\n" + webRequest.error);
+            }
+        }
     }
 
     private void LeaveGame()
@@ -613,6 +690,39 @@ public class UIController : MonoBehaviour
 
         readyToQuit = true;
         SceneManager.LoadScene("Host or Join Game");
+    }
+
+    public static int GetAlertRowNum(int teamNum, int gameNum)
+    {
+        return 250 + teamNum + gameNum * 10;
+    }
+
+    public void AlertTeammate()
+    {
+        StartCoroutine(PushAlert());
+    }
+
+    private IEnumerator PushAlert()
+    {
+        WWWForm form = new WWWForm();
+        form.AddField("groupid", "pm36");
+        form.AddField("grouppw", "N3Km3yJZpM");
+        form.AddField("row", GetAlertRowNum(GamePlayerInfo.playerNum / 2, CloudGameData.gameNum));
+        form.AddField("s4", "1");
+
+        using (UnityWebRequest webRequest = UnityWebRequest.Post(CloudGameData.PushURL, form))
+        {
+            yield return webRequest.SendWebRequest();
+
+            if (webRequest.isNetworkError)
+            {
+                Debug.LogError("An error has occurred while pushing.\n" + webRequest.error);
+            }
+            else
+            {
+                Debug.Log("Alert pushed at " + GetAlertRowNum(GamePlayerInfo.playerNum, CloudGameData.gameNum));
+            }
+        }
     }
 
     public void GoToSettings()
@@ -855,17 +965,9 @@ public class UIController : MonoBehaviour
 
     private IEnumerator DisplayWinner()
     {
-        if (TeamsUpdater.teams[3].GetPlayers()[0] != null)
+        for (int i = 0; i < Array.FindAll(teams, x => x.activeSelf).Length; ++i)
         {
-            yield return new WaitUntil(() => doneWithResults[0] && doneWithResults[1] && doneWithResults[2] && doneWithResults[3]);
-        }
-        else if (TeamsUpdater.teams[2].GetPlayers()[0] != null)
-        {
-            yield return new WaitUntil(() => doneWithResults[0] && doneWithResults[1] && doneWithResults[2]);
-        }
-        else
-        {
-            yield return new WaitUntil(() => doneWithResults[0] && doneWithResults[1]);
+            yield return new WaitUntil(() => doneWithResults[i]);
         }
 
         System.Collections.Generic.List<int> teamPointsList = teamPointsArray.ToList();
@@ -880,6 +982,11 @@ public class UIController : MonoBehaviour
         {
             winnerText.text = "It's a Tie!";
         }
+    }
+
+    public void BackToTeamSelect()
+    {
+        SceneManager.LoadScene("Team Select");
     }
 
     public void AdjustVolume()

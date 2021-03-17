@@ -10,9 +10,11 @@ public class GamePlayerInfo : MonoBehaviour
     public static int playerNum = 0; // Evens are humans, odds are fairies.
 
     private int _points;
-    public float _timeRemaining;
+    private float _timeRemaining;
 
     public static GameObject player;
+
+    public static int[] teamPoints = new int[8];
 
     public int Points
     {
@@ -53,8 +55,6 @@ public class GamePlayerInfo : MonoBehaviour
 
     private void Awake()
     {
-        StopAllCoroutines();
-
         var cam = Camera.main;
         
         if (playerNum % 2 == 0)
@@ -132,6 +132,7 @@ public class GamePlayerInfo : MonoBehaviour
         if (!countdown)
             return;
 
+        teamPoints[0] = _points;
         TimeRemaining -= Time.deltaTime;
     }
 

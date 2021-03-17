@@ -17,8 +17,8 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 currentInputVal;
 
     [Header("Movement Settings")]
-    public readonly float walkSpeed = 5f;
-    public readonly float runSpeed = 10f;
+    public readonly float walkSpeed = 4f;
+    public readonly float runSpeed = 8f;
     private float currentSpeed;
 
     public float jumpSpeed = 15f;
@@ -30,7 +30,7 @@ public class PlayerMovement : MonoBehaviour
 
     private GameObject dustParticles;
 
-    private bool isWallJumping;
+    public float diAmount = 1f;
 
     private void Awake()
     {
@@ -51,18 +51,16 @@ public class PlayerMovement : MonoBehaviour
         Run();
         anim.speed = currentInputVal.x != 0f ? Mathf.Abs(rb2D.velocity.x) / currentSpeed : 1f;
 
-        if (!isWallJumping)
+        rb2D.AddForce(new Vector2(currentInputVal.x * diAmount * currentSpeed * 6f, 0f));
+
+        if (Mathf.Abs(rb2D.velocity.x) > currentSpeed)
         {
-            rb2D.velocity = new Vector3(currentInputVal.x * currentSpeed, rb2D.velocity.y);
-        }
-        else
-        {
-            rb2D.velocity = new Vector3(rb2D.velocity.x + currentInputVal.x * currentSpeed * Time.deltaTime, rb2D.velocity.y);
+            rb2D.velocity = new Vector2(currentSpeed * Mathf.Abs(rb2D.velocity.x) / rb2D.velocity.x, rb2D.velocity.y);
         }
 
-        if (rb2D.velocity.y < 0f)
+        if (currentInputVal.x == 0f)
         {
-            isWallJumping = false;
+            rb2D.velocity = new Vector2(rb2D.velocity.x / (currentSpeed * 2f), rb2D.velocity.y);
         }
 
         if (currentPlatform == null)
@@ -78,7 +76,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (IsWallSliding(out int wallSide))
         {
-            if (wallSide == (int)(currentInputVal.x / Mathf.Abs(currentInputVal.x)) && !IsGrounded())
+            if (wallSide == (int)(currentInputVal.x / Mathf.Abs(currentInputVal.x)) && !IsGrounded() && rb2D.velocity.y < 0f)
             {
                 rb2D.velocity = new Vector2(rb2D.velocity.x, currentSpeed == runSpeed ? -6f : -4f);
             }
@@ -101,7 +99,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (IsWallSliding(out int wallSide))
         {
-            if (wallSide == (int) (currentInputVal.x / Mathf.Abs(currentInputVal.x)))
+            if (wallSide == (int) (currentInputVal.x / Mathf.Abs(currentInputVal.x)) && !IsGrounded())
             {
                 WallJump(-wallSide);
                 return;
@@ -119,10 +117,24 @@ public class PlayerMovement : MonoBehaviour
 
     public void WallJump(int direction)
     {
-        isWallJumping = true;
-        rb2D.AddForce(new Vector2(jumpSpeed * direction, 0f), ForceMode2D.Impulse);
-        rb2D.velocity = new Vector2(rb2D.velocity.x, jumpSpeed);
+        StartCoroutine(DisableDI());
+        rb2D.velocity = new Vector2(jumpSpeed * direction * 4f, jumpSpeed);
         anim.SetTrigger("Jumping");
+    }
+
+    private IEnumerator DisableDI()
+    {
+        diAmount = 0f;
+
+        yield return new WaitUntil(() => rb2D.velocity.y <= 0f);
+
+        for (float i = 0f; i < 2.5f; i += Time.deltaTime)
+        {
+            diAmount = 2.5f;
+            yield return new WaitForEndOfFrame();
+        }
+
+        diAmount = 1f;
     }
 
     private void Run()
@@ -157,7 +169,17 @@ public class PlayerMovement : MonoBehaviour
         }
         else if (overlappingObject.CompareTag("Item"))
         {
-            overlappingObject.GetComponent<Item>().itemAction.Invoke();
+            ItemAction item = overlappingObject.GetComponent<ItemAction>();
+            item.pickupPlayer = gameObject;
+
+            if (item.canCarry)
+            {
+                item.Grab();
+            }
+            else
+            {
+                item.itemAction.Invoke();
+            }
         }
     }
 
@@ -171,8 +193,8 @@ public class PlayerMovement : MonoBehaviour
         RaycastHit2D[] leftWallHit = new RaycastHit2D[1];
         RaycastHit2D[] rightWallHit = new RaycastHit2D[1];
 
-        bool leftWall = Physics2D.BoxCast(transform.position, new Vector2(0.125f, 0.75f), 0f, Vector2.left, 0.9f, ground);
-        bool rightWall = Physics2D.BoxCast(transform.position, new Vector2(0.125f, 0.75f), 0f, Vector2.right, 0.9f, ground);
+        bool leftWall = Physics2D.BoxCast(transform.position, new Vector2(0.1f, 0.75f), 0f, Vector2.left, 0.75f, ground);
+        bool rightWall = Physics2D.BoxCast(transform.position, new Vector2(0.1f, 0.75f), 0f, Vector2.right, 0.75f, ground);
         wallSide = leftWall ? -1 : rightWall ? 1 : 0;
 
         return (leftWall || rightWall)/* && (!leftWallHit[0].transform.CompareTag("Platform") && !rightWallHit[0].transform.CompareTag("Platform"))*/;
