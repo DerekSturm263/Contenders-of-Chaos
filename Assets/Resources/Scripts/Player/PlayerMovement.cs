@@ -51,7 +51,7 @@ public class PlayerMovement : MonoBehaviour
         Run();
         anim.speed = currentInputVal.x != 0f ? Mathf.Abs(rb2D.velocity.x) / currentSpeed : 1f;
 
-        rb2D.AddForce(new Vector2(currentInputVal.x * diAmount * currentSpeed * 6f, 0f));
+        rb2D.AddForce(new Vector2(currentInputVal.x * diAmount * currentSpeed * 20f, 0f));
 
         if (Mathf.Abs(rb2D.velocity.x) > currentSpeed)
         {
