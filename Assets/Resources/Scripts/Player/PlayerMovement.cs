@@ -169,16 +169,24 @@ public class PlayerMovement : MonoBehaviour
         }
         else if (overlappingObject.CompareTag("Item"))
         {
-            ItemAction item = overlappingObject.GetComponent<ItemAction>();
-            item.pickupPlayer = gameObject;
+            if (heldItem == null)
+            {
+                ItemAction item = overlappingObject.GetComponent<ItemAction>();
+                item.pickupPlayer = gameObject;
 
-            if (item.canCarry)
-            {
-                item.Grab();
+                if (item.canCarry)
+                {
+                    item.Grab();
+                }
+                else
+                {
+                    item.itemAction.Invoke();
+                }
             }
-            else
+            else if (heldItem.CompareTag("Item"))
             {
-                item.itemAction.Invoke();
+                ItemAction item = overlappingObject.GetComponent<ItemAction>();
+                item.Use();
             }
         }
     }

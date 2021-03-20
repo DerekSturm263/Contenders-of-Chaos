@@ -38,6 +38,11 @@ public class ItemAction : MonoBehaviour
         gemState = State.Held;
     }
 
+    public void Use()
+    {
+
+    }
+
     public void Spawn()
     {
         transform.position = ChoosePosition();
