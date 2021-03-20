@@ -18,12 +18,12 @@ public static class CloudGameData
         for (int i = 0; i < 10; ++i)
         {
             WWWForm form = new WWWForm();
-            form.AddField("groupid", "pm36");
-            form.AddField("grouppw", "N3Km3yJZpM");
-            form.AddField("row", i);
-            form.AddField("s4", "False");
+            form.AddField("groupid", "pm36"); // Group ID.
+            form.AddField("grouppw", "N3Km3yJZpM"); // Password.
+            form.AddField("row", i); // Row you're pushing to.
+            form.AddField("s4", "False"); // Value that you're pushing.
 
-            using (UnityWebRequest webRequest = UnityWebRequest.Post(PushURL, form))
+            using (UnityWebRequest webRequest = UnityWebRequest.Post(PushURL, form)) // Posting = Pushing. Use PushURL.
             {
                 yield return webRequest.SendWebRequest();
 

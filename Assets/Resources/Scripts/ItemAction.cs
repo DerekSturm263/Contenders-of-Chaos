@@ -21,6 +21,7 @@ public class ItemAction : MonoBehaviour
     private void Awake()
     {
         items.Add(this);
+        floatScript = GetComponent<Float>();
     }
 
     private void Update()
@@ -39,15 +40,18 @@ public class ItemAction : MonoBehaviour
 
     public void Spawn()
     {
-        ChoosePosition();
+        transform.position = ChoosePosition();
+        floatScript.ResetPosition();
     }
 
     private Vector2 ChoosePosition()
     {
-        System.Collections.Generic.List<int> teamPointsList = GamePlayerInfo.teamPoints.ToList();
-        teamPointsList.Sort();
-        teamPointsList.Reverse();
+        return new Vector3(0f, 0f, 1f);
 
-        return GamePlayerInfo.playerTransforms[System.Array.IndexOf(GamePlayerInfo.playerTransforms, teamPointsList[0])].position + new Vector3(Random.Range(-10f, 10f), Random.Range(-10f, 10f));
+        //System.Collections.Generic.List<int> teamPointsList = GamePlayerInfo.teamPoints.ToList();
+        //teamPointsList.Sort();
+        //teamPointsList.Reverse();
+
+        //return GamePlayerInfo.playerTransforms[System.Array.IndexOf(GamePlayerInfo.playerTransforms, teamPointsList[0])].position + new Vector3(Random.Range(-10f, 10f), Random.Range(-10f, 10f));
     }
 }
