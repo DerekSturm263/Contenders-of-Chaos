@@ -12,6 +12,7 @@ public class ItemAction : MonoBehaviour
     private Float floatScript;
 
     public bool canCarry;
+    public bool inUse = false; //currently not in use and can be effected by spawn()
     public System.Action itemAction;
 
     public GameObject pickupPlayer;

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -100,7 +101,7 @@ public class PlayerCloudMovement : MonoBehaviour
     private IEnumerator UpdatePosition()
     {
         int rowNum = TeamsUpdater.GetIndexOfPlayerPosition(playerNum / 2, 0, CloudGameData.gameNum);
-        Debug.Log(rowNum);
+        //Debug.Log(rowNum);
 
         using (UnityWebRequest webRequest = UnityWebRequest.Get(CloudGameData.PullURL + rowNum))
         {
@@ -109,14 +110,7 @@ public class PlayerCloudMovement : MonoBehaviour
             string[] pages = rowNum.ToString().Split('/');
             int page = pages.Length - 1;
 
-            if (webRequest.isNetworkError)
-            {
-                Debug.LogError("An error has occurred while pulling.\n" + webRequest.error);
-            }
-            else
-            {
-                Debug.Log(webRequest.downloadHandler.text);
-
+            try {
                 string[] webData = webRequest.downloadHandler.text.Split(',');
                 string[] pos = webData[1].Split('|');
 
@@ -124,7 +118,27 @@ public class PlayerCloudMovement : MonoBehaviour
                 float y = float.Parse(pos[1]);
 
                 targetPosition = new Vector3(x, y, 0);
+
+            } catch (Exception e) {
+                Debug.LogWarning(e.Message);
+
             }
+
+            /*if (webRequest.isNetworkError)
+            {
+                Debug.LogError("An error has occurred while pulling.\n" + webRequest.error);
+            }
+            else
+            {
+                Debug.Log(webRequest.downloadHandler.text);
+                string[] webData = webRequest.downloadHandler.text.Split(',');
+                string[] pos = webData[1].Split('|');
+
+                float x = float.Parse(pos[0]);
+                float y = float.Parse(pos[1]);
+
+                targetPosition = new Vector3(x, y, 0);
+            }*/
         }
 
         StartCoroutine(UpdatePosition());

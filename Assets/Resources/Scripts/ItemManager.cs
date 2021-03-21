@@ -107,7 +107,8 @@ public class ItemManager : MonoBehaviour
     {
         int randomNum = UnityEngine.Random.Range(0, ItemAction.items.Count - 1);
         int retries = 0;
-        while (ItemAction.items[randomNum].gemState == ItemAction.State.Held) {
+        while (ItemAction.items[randomNum].inUse) {
+            //attempts to find an item not in use
             randomNum = UnityEngine.Random.Range(0, ItemAction.items.Count - 1);
             retries++;
             if (retries > 10) {
