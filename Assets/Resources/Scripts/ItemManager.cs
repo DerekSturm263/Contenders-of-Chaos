@@ -21,6 +21,12 @@ public class ItemManager : MonoBehaviour
         Debug.Log("Carry item.");
     }));
 
+    public Item FakeGem = new Item("FakeGem", true, new Action(() => {
+        GameObject obj = GameObject.Find("FakeGem");
+        obj.AddComponent<FakeItemScript>();
+    }));
+
+
     public static ItemManager GetItemManager()
     {
         return FindObjectOfType<ItemManager>();
@@ -29,9 +35,11 @@ public class ItemManager : MonoBehaviour
     private void Awake()
     {
         // Don't forget to make the items after you define them.
-        GameObject item1 = NewItem(beehive);
+        /*GameObject item1 = NewItem(beehive);
         GameObject item2 = NewItem(cloak);
-        GameObject item3 = NewItem(carryTest);
+        GameObject item3 = NewItem(carryTest);*/
+        GameObject item4 = NewItem(FakeGem);
+        FakeGem.itemAction.Invoke();
 
         // Spawns a new item every 30 seconds.
         InvokeRepeating("SpawnItem", 30f, 30f);
@@ -98,7 +106,14 @@ public class ItemManager : MonoBehaviour
     public void SpawnItem()
     {
         int randomNum = UnityEngine.Random.Range(0, ItemAction.items.Count - 1);
-
+        int retries = 0;
+        while (ItemAction.items[randomNum].gemState == ItemAction.State.Held) {
+            randomNum = UnityEngine.Random.Range(0, ItemAction.items.Count - 1);
+            retries++;
+            if (retries > 10) {
+                return;
+            }
+        }
         ItemAction.items[randomNum].GetComponent<Float>().enabled = false;
         ItemAction.items[randomNum].Spawn();
         ItemAction.items[randomNum].GetComponent<Float>().enabled = true;
