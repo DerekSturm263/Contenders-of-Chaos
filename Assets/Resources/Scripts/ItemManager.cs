@@ -6,6 +6,7 @@ using UnityEngine.Networking;
 public class ItemManager : MonoBehaviour
 {
     public const string FilePath = "Sprites/";
+    public static float spawnTime = 30f;
 
     public Item beehive = new Item("Beehive", false, new Action(() =>
     {
@@ -54,7 +55,7 @@ public class ItemManager : MonoBehaviour
         FrogBoots.itemAction.Invoke();
 
         // Spawns a new item every 30 seconds.
-        InvokeRepeating("SpawnItem", 30f, 30f);
+        InvokeRepeating("SpawnItem", spawnTime, spawnTime);
     }
 
     // Example on how to push.

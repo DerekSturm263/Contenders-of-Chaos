@@ -148,7 +148,14 @@ public class TeamsUpdater : MonoBehaviour
 
             if (webRequest.downloadHandler.text.Contains("True"))
             {
+                string[] results = webRequest.downloadHandler.text.Split(',');
+
                 StopAllCoroutines();
+                GamePlayerInfo.timeSet = Convert.ToInt32(results[2]);
+                SpawnGems.count = Convert.ToInt32(results[3]);
+                ItemManager.spawnTime = Convert.ToInt32(results[4]);
+                GamePlayerInfo.useRandomChallenge = Convert.ToInt32(results[5]) == 1 ? true : false;
+                GamePlayerInfo.useHazards = Convert.ToInt32(results[6]) == 1 ? true : false;
                 SceneManager.LoadScene("Main");
             }
         }
@@ -161,7 +168,7 @@ public class TeamsUpdater : MonoBehaviour
 
     public IEnumerator CheckForClose()
     {
-        using (UnityWebRequest webRequest = UnityWebRequest.Get(CloudGameData.PullURL + (CloudGameData.gameNum)))
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(CloudGameData.PullURL + CloudGameData.gameNum))
         {
             yield return webRequest.SendWebRequest();
 

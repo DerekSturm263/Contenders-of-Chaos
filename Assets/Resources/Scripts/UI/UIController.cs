@@ -66,6 +66,8 @@ public class UIController : MonoBehaviour
 
     public static bool readyToQuit = true;
 
+    public GameObject oldSelected;
+
     private void Awake()
     {
         currentEvent = FindObjectOfType<EventSystem>();
@@ -765,11 +767,27 @@ public class UIController : MonoBehaviour
     public void OpenMenu(GameObject menu)
     {
         menu.SetActive(true);
+
+        oldSelected = currentEvent.currentSelectedGameObject;
+
+        if (menu.GetComponentsInChildren<UnityEngine.UI.Button>().Length != 0)
+        {
+            currentEvent.SetSelectedGameObject(menu.GetComponentsInChildren<UnityEngine.UI.Button>()[0].gameObject);
+        }
+        else if (menu.GetComponentsInChildren<TMPro.TMP_InputField>().Length != 0)
+        {
+            currentEvent.SetSelectedGameObject(menu.GetComponentsInChildren<TMPro.TMP_InputField>()[0].gameObject);
+        }
     }
 
     public void CloseMenu(GameObject menu)
     {
         menu.GetComponent<Animator>().SetTrigger("Exit");
+
+        if (oldSelected != null)
+        {
+            currentEvent.SetSelectedGameObject(oldSelected);
+        }
     }
 
     public void Quit(GameObject menu)
@@ -794,7 +812,7 @@ public class UIController : MonoBehaviour
         form.AddField("groupid", "pm36");
         form.AddField("grouppw", "N3Km3yJZpM");
         form.AddField("row", CloudGameData.gameNum + 220);
-        form.AddField("s4", "True");
+        form.AddField("s4", "True," + GamePlayerInfo.timeSet + "," + SpawnGems.count + "," + ItemManager.spawnTime + "," + (GamePlayerInfo.useRandomChallenge ? 1 : 0) + "," + (GamePlayerInfo.useHazards ? 1 : 0));
 
         using (UnityWebRequest webRequest = UnityWebRequest.Post(CloudGameData.PushURL, form))
         {
@@ -802,7 +820,6 @@ public class UIController : MonoBehaviour
         }
 
         ChooseGameMode(CloudGameData.gameNum); // Change to button when you add more gamemodes.
-        GamePlayerInfo.timeSet = 300;
         SceneManager.LoadScene("Main");
     }
 
@@ -819,28 +836,6 @@ public class UIController : MonoBehaviour
             {
                 StartCoroutine(GetGemSeed());
                 StartCoroutine(GetTileSeed());
-            }
-        }
-        else if (gameModeNum == 1)
-        {
-            if (CloudGameData.isHosting)
-            {
-
-            }
-            else
-            {
-
-            }
-        }
-        else
-        {
-            if (CloudGameData.isHosting)
-            {
-
-            }
-            else
-            {
-
             }
         }
     }
@@ -1040,6 +1035,31 @@ public class UIController : MonoBehaviour
     }
 
     #endregion
+
+    public void AdjustMatchTime(string time)
+    {
+        GamePlayerInfo.timeSet = Int32.Parse(time);
+    }
+
+    public void AdjustGemCount(string count)
+    {
+        SpawnGems.count = Int32.Parse(count);
+    }
+
+    public void AdjustItemFreqeuency(float amount)
+    {
+        //ItemManager.spawnTime = 40f - amount * 10f;
+    }
+
+    public void ToggleRandomChallenge(bool value)
+    {
+        GamePlayerInfo.useRandomChallenge = value;
+    }
+
+    public void ToggleHazards(bool value)
+    {
+        GamePlayerInfo.useHazards = value;
+    }
 
     private void OnApplicationQuit()
     {
