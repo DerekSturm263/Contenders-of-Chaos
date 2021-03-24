@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+//using UnityEngine.iOS;
 public class SpinWheel : MonoBehaviour
 {
     public List<int> prize;
@@ -19,18 +20,26 @@ public class SpinWheel : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && !spinning)
+        if (Input.touchCount > 0)
         {
+            Touch touch = Input.GetTouch(0);
 
-            randomTime = Random.Range(1, 4);
-            itemNumber = Random.Range(0, prize.Count);
-            float maxAngle = 360 * randomTime + (itemNumber * anglePerItem);
+            if (Input.touchCount == 1)
+            {
+                touch = Input.GetTouch(1);
 
-            StartCoroutine(SpinTheWheel(5 * randomTime, maxAngle));
+                if (!spinning)
+                {
+                    randomTime = Random.Range(1, 4);
+                    itemNumber = 0;
+                    float maxAngle = 360 * randomTime + (itemNumber * anglePerItem);
+
+                    StartCoroutine(SpinTheWheel(5 * randomTime, maxAngle));
+                }
+            }
         }
     }
-
-    IEnumerator SpinTheWheel(float time, float maxAngle)
+        IEnumerator SpinTheWheel(float time, float maxAngle)
     {
         spinning = true;
 
