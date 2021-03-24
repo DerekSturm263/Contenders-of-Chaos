@@ -94,6 +94,7 @@ public class PlayerMovement : MonoBehaviour
     public void Die()
     {
         transform.position = spawnPoint;
+        GamePlayerInfo.GetPlayerInfo().Points -= 2;
     }
 
     public void Movement(InputAction.CallbackContext ctx)

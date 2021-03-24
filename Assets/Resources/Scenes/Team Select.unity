@@ -11420,7 +11420,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   alertButton: {fileID: 0}
-  settingsButton: {fileID: 0}
+  settingsButton: {fileID: 1446321237}
   gameSettingsBG: {fileID: 342439111}
   leaveGameBG: {fileID: 1911162755}
   oldSelected: {fileID: 0}

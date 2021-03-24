@@ -98,7 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 1
+  m_UseShadowmask: 0
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -3811,10 +3811,10 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1955552283}
         m_MethodName: Quit
-        m_Mode: 1
+        m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgument: {fileID: 122898025}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -4149,6 +4149,7 @@ MonoBehaviour:
   settingsButton: {fileID: 0}
   gameSettingsBG: {fileID: 0}
   leaveGameBG: {fileID: 0}
+  oldSelected: {fileID: 0}
 --- !u!4 &1955552284
 Transform:
   m_ObjectHideFlags: 0
