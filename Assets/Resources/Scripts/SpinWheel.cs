@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine.iOS;
+//using UnityEngine.iOS;
 public class SpinWheel : MonoBehaviour
 {
     public List<int> prize;

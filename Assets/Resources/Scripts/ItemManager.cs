@@ -25,6 +25,14 @@ public class ItemManager : MonoBehaviour
         GameObject obj = GameObject.Find("FakeGem");
         obj.AddComponent<FakeItemScript>();
     }));
+    public Item SpeedFeather = new Item("SpeedFeather", true, new Action(() => {
+        GameObject obj = GameObject.Find("SpeedFeather");
+        obj.AddComponent<SpeedFeatherScript>();
+    }));
+    public Item FrogBoots = new Item("FrogBoots", true, new Action(() => {
+        GameObject obj = GameObject.Find("FrogBoots");
+        obj.AddComponent<FrogBootsScript>();
+    }));
 
 
     public static ItemManager GetItemManager()
@@ -40,6 +48,10 @@ public class ItemManager : MonoBehaviour
         GameObject item3 = NewItem(carryTest);*/
         GameObject item4 = NewItem(FakeGem);
         FakeGem.itemAction.Invoke();
+        GameObject item5 = NewItem(SpeedFeather);
+        SpeedFeather.itemAction.Invoke();
+        GameObject item6 = NewItem(FrogBoots);
+        FrogBoots.itemAction.Invoke();
 
         // Spawns a new item every 30 seconds.
         InvokeRepeating("SpawnItem", 30f, 30f);
@@ -105,11 +117,11 @@ public class ItemManager : MonoBehaviour
 
     public void SpawnItem()
     {
-        int randomNum = UnityEngine.Random.Range(0, ItemAction.items.Count - 1);
+        int randomNum = UnityEngine.Random.Range(0, ItemAction.items.Count);
         int retries = 0;
         while (ItemAction.items[randomNum].inUse) {
             //attempts to find an item not in use
-            randomNum = UnityEngine.Random.Range(0, ItemAction.items.Count - 1);
+            randomNum = UnityEngine.Random.Range(0, ItemAction.items.Count);
             retries++;
             if (retries > 10) {
                 return;

@@ -26,6 +26,7 @@ void Start() {
                 StartCoroutine(throwItem());
             }
             if (isTrapActive) {
+                GamePlayerInfo.GetPlayerInfo().Points--;
                 StartCoroutine(ClearFakeGemInfo());
                 //TODO: add some cool effects
             }
@@ -88,7 +89,6 @@ void Start() {
         form2.AddField("row", 540 + CloudGameData.gameNum); // Row you're pushing to.
         form2.AddField("s4", "-1000|-1000|false"); // Value that you're pushing.
 
-        GamePlayerInfo.GetPlayerInfo().Points--;
         isTrapActive = false;
 
         itemAction.inUse = false;
