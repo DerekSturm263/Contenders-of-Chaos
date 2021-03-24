@@ -56,6 +56,8 @@ public class UIController : MonoBehaviour
     public GameObject gameSettingsBG;
     public GameObject leaveGameBG;
 
+    public GameObject mainCanvas;
+
     // Settings.
     public static float volume = 0.5f;
     public static bool useFullscreen = true;
@@ -322,7 +324,7 @@ public class UIController : MonoBehaviour
 
     public void GoToPlay()
     {
-        SceneManager.LoadScene("Host or Join Game");
+        mainCanvas.GetComponent<Animator>().SetTrigger("Exit");
     }
 
     private IEnumerator TryJoin(string input)
@@ -604,7 +606,7 @@ public class UIController : MonoBehaviour
             }
             else if (!joinInfo.activeSelf)
             {
-                SceneManager.LoadScene("Title");
+                mainCanvas.GetComponent<Animator>().SetTrigger("Exit");
             }
         }
         else
@@ -756,12 +758,13 @@ public class UIController : MonoBehaviour
 
     public void GoToSettings()
     {
-        SceneManager.LoadScene("Settings");
+        mainCanvas.GetComponent<Animator>().SetTrigger("Exit");
+        mainCanvas.GetComponent<Animator>().GetBehaviour<LoadScene>().sceneName = "Settings";
     }
 
     public void SettingsToTitle()
     {
-        SceneManager.LoadScene("Title");
+        mainCanvas.GetComponent<Animator>().SetTrigger("Exit");
     }
 
     public void OpenMenu(GameObject menu)
@@ -798,7 +801,8 @@ public class UIController : MonoBehaviour
 
     public void GoToMobileApp()
     {
-        SceneManager.LoadScene("Mobile App");
+        mainCanvas.GetComponent<Animator>().SetTrigger("Exit");
+        mainCanvas.GetComponent<Animator>().GetBehaviour<LoadScene>().sceneName = "Mobile App";
     }
 
     public void StartGame()
@@ -817,10 +821,17 @@ public class UIController : MonoBehaviour
         using (UnityWebRequest webRequest = UnityWebRequest.Post(CloudGameData.PushURL, form))
         {
             yield return webRequest.SendWebRequest();
-        }
 
-        ChooseGameMode(CloudGameData.gameNum); // Change to button when you add more gamemodes.
-        SceneManager.LoadScene("Main");
+            if (webRequest.isNetworkError)
+            {
+                Debug.LogError("An error has occurred while pushing.\n" + webRequest.error);
+            }
+            else
+            {
+                ChooseGameMode(0); // Change to button when you add more gamemodes.
+                SceneManager.LoadScene("Main");
+            }
+        }
     }
 
     public void ChooseGameMode(int gameModeNum)
@@ -988,6 +999,29 @@ public class UIController : MonoBehaviour
 
     private IEnumerator DisplayWinner()
     {
+        if (CloudGameData.isHosting)
+        {
+            WWWForm form = new WWWForm();
+            form.AddField("groupid", "pm36");
+            form.AddField("grouppw", "N3Km3yJZpM");
+            form.AddField("row", CloudGameData.gameNum + 220);
+            form.AddField("s4", "False");
+
+            using (UnityWebRequest webRequest = UnityWebRequest.Post(CloudGameData.PushURL, form))
+            {
+                yield return webRequest.SendWebRequest();
+
+                if (webRequest.isNetworkError)
+                {
+                    Debug.LogError("An error has occured while trying to push data.");
+                }
+                else
+                {
+                    Debug.Log("Data successfully pushed.");
+                }
+            }
+        }
+
         for (int i = 0; i < Array.FindAll(teams, x => x.activeSelf).Length; ++i)
         {
             yield return new WaitUntil(() => doneWithResults[i]);
