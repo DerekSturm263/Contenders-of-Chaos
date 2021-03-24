@@ -18,7 +18,7 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Movement Settings")]
     public readonly float walkSpeed = 4f;
-    public readonly float runSpeed = 8f;
+    public readonly float runSpeed = 7f;
     private float currentSpeed;
 
     public float jumpSpeed = 15f;
@@ -32,8 +32,11 @@ public class PlayerMovement : MonoBehaviour
 
     public float diAmount = 1f;
 
+    public Vector3 spawnPoint;
+
     private void Awake()
     {
+        spawnPoint = transform.position;
         inputActions = new InputActions();
 
         anim = GetComponent<Animator>();
@@ -81,6 +84,16 @@ public class PlayerMovement : MonoBehaviour
                 rb2D.velocity = new Vector2(rb2D.velocity.x, currentSpeed == runSpeed ? -6f : -4f);
             }
         }
+
+        if (transform.position.y < -40f)
+        {
+            Die();
+        }
+    }
+
+    public void Die()
+    {
+        transform.position = spawnPoint;
     }
 
     public void Movement(InputAction.CallbackContext ctx)

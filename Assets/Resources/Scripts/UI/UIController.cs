@@ -4,9 +4,12 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Networking;
 using System.Linq;
 using System;
+using UnityEngine.EventSystems;
 
 public class UIController : MonoBehaviour
 {
+    private EventSystem currentEvent;
+
     public TMPro.TMP_Text roomNumber;
 
     public GameObject codePrompt;
@@ -49,6 +52,10 @@ public class UIController : MonoBehaviour
 
     public GameObject alertButton;
 
+    public GameObject settingsButton;
+    public GameObject gameSettingsBG;
+    public GameObject leaveGameBG;
+
     // Settings.
     public static float volume = 0.5f;
     public static bool useFullscreen = true;
@@ -61,6 +68,8 @@ public class UIController : MonoBehaviour
 
     private void Awake()
     {
+        currentEvent = FindObjectOfType<EventSystem>();
+
         if (resetCloudData)
         {
             Debug.Log("Clearing all cloud data.");
@@ -123,11 +132,17 @@ public class UIController : MonoBehaviour
         if (firstTimeUsernameInput != null && GameController.playerInfo.name == "")
         {
             firstTimeUsernameInput.SetActive(true);
+            currentEvent.SetSelectedGameObject(firstTimeUsernameInput.GetComponentInChildren<TMPro.TMP_InputField>().gameObject);
         }
 
         if (alertButton != null)
         {
             alertButton.SetActive(!isPC);
+        }
+
+        if (settingsButton != null)
+        {
+            settingsButton.SetActive(CloudGameData.isHosting);
         }
     }
 
@@ -280,13 +295,13 @@ public class UIController : MonoBehaviour
     private void DisplayCodePrompt()
     {
         codePrompt.SetActive(true);
-        enterCodePrompt.text = "Please enter the room code of the game you wish to enter.\n\nExample: 123456";
+        enterCodePrompt.text = "Please enter a room code. The code must be 6 digits in length and only consist of numbers.\n\nExample: 285193";
         codeInput.text = "";
     }
 
     public void HideCodePrompt()
     {
-        codePrompt.SetActive(false);
+        codePrompt.GetComponent<Animator>().SetTrigger("Exit");
     }
 
     public void EnterCode()
@@ -553,6 +568,18 @@ public class UIController : MonoBehaviour
         }
     }
 
+    public void CloseSettingsOrGame()
+    {
+        if (!gameSettingsBG.activeSelf)
+        {
+            OpenMenu(leaveGameBG);
+        }
+        else
+        {
+            CloseMenu(gameSettingsBG);
+        }
+    }
+
     public void LeaveToTitle()
     {
         if (codePrompt)
@@ -742,11 +769,12 @@ public class UIController : MonoBehaviour
 
     public void CloseMenu(GameObject menu)
     {
-        menu.SetActive(false);
+        menu.GetComponent<Animator>().SetTrigger("Exit");
     }
 
-    public void Quit()
+    public void Quit(GameObject menu)
     {
+        menu.GetComponent<Animator>().SetTrigger("Exit");
         Application.Quit();
     }
 
@@ -923,7 +951,7 @@ public class UIController : MonoBehaviour
         SaveController.Save(input);
 
         if (panel != null)
-            panel.SetActive(false);
+            panel.GetComponent<Animator>().SetTrigger("Exit");
     }
 
     private void UpdateResultsInfo()
