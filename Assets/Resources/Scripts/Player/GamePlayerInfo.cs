@@ -55,6 +55,8 @@ public class GamePlayerInfo : MonoBehaviour
 
     private void Awake()
     {
+        MusicPlayer.Restart();
+
         var cam = Camera.main;
         
         if (playerNum % 2 == 0)

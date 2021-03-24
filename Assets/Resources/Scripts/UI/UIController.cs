@@ -1017,9 +1017,10 @@ public class UIController : MonoBehaviour
         SceneManager.LoadScene("Team Select");
     }
 
-    public void AdjustVolume()
+    public void AdjustVolume(float f)
     {
-
+        MusicPlayer.ChangeVolume(f);
+        SoundPlayer.ChangeVolume(f);
     }
 
     public void ToggleFullscreen()

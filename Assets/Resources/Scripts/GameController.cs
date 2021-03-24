@@ -8,6 +8,17 @@ public class GameController : MonoBehaviour
     {
         SaveController.Load();
         Initialize();
+
+        if (!MusicPlayer.Exists())
+        {
+            MusicPlayer.Initialize();
+            SoundPlayer.Initialize();
+
+            MusicPlayer.Play("Update");
+        }
+
+        DontDestroyOnLoad(FindObjectsOfType<AudioSource>()[0]); // Music Player.
+        DontDestroyOnLoad(FindObjectsOfType<AudioSource>()[1]); // Sound Player.
     }
 
     public static void Initialize()

@@ -23,6 +23,11 @@ public static class MusicPlayer
 
     #region PlayTrack Methods
 
+    public static bool Exists()
+    {
+        return GameObject.FindObjectOfType<AudioSource>();
+    }
+
     // Plays the current AudioClip.
     public static void Play()
     {
