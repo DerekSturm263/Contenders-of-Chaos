@@ -118,6 +118,7 @@ public class ItemManager : MonoBehaviour
 
     public void SpawnItem()
     {
+        bool itemFound = true;
         int randomNum = UnityEngine.Random.Range(0, ItemAction.items.Count);
         int retries = 0;
         while (ItemAction.items[randomNum].inUse) {
@@ -125,11 +126,14 @@ public class ItemManager : MonoBehaviour
             randomNum = UnityEngine.Random.Range(0, ItemAction.items.Count);
             retries++;
             if (retries > 10) {
-                return;
+                itemFound = false;
+                break;
             }
         }
-        ItemAction.items[randomNum].GetComponent<Float>().enabled = false;
-        ItemAction.items[randomNum].Spawn();
-        ItemAction.items[randomNum].GetComponent<Float>().enabled = true;
+        if (itemFound) {
+            ItemAction.items[randomNum].GetComponent<Float>().enabled = false;
+            ItemAction.items[randomNum].Spawn();
+            ItemAction.items[randomNum].GetComponent<Float>().enabled = true;
+        }
     }
 }
