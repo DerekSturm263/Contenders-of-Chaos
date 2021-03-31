@@ -6,12 +6,14 @@ using UnityEngine.Networking;
 public class FakeItemScript : MonoBehaviour {
     // Start is called before the first frame update
     private Rigidbody2D rb2;
+    private SpriteRenderer sr;
     private ItemAction itemAction;
     private Float floatScript;
     public bool isTrapActive;
 
 void Start() {
         itemAction = GetComponent<ItemAction>();
+        sr = GetComponent<SpriteRenderer>();
         floatScript = GetComponent<Float>();
         isTrapActive = false;
         StartCoroutine(ClearFakeGemInfo());
@@ -30,6 +32,11 @@ void Start() {
                 StartCoroutine(ClearFakeGemInfo());
                 //TODO: add some cool effects
             }
+        }
+        if (isTrapActive) {
+            sr.sprite = Resources.LoadAll<Sprite>("Spritesheets/diamond_spritesheet")[0];
+        } else {
+            sr.sprite = Resources.Load<Sprite>("Sprites/FakeGem");
         }
     }
 
@@ -74,7 +81,7 @@ void Start() {
         using (UnityWebRequest webRequest = UnityWebRequest.Post(CloudGameData.PushURL, form2)) // Uses the PushUrl.
         {
             yield return webRequest.SendWebRequest();
-            
+
             if (webRequest.isNetworkError) {
                 Debug.LogError("An error has occurred while pushing.\n" + webRequest.error);
             }
@@ -109,38 +116,36 @@ void Start() {
 
     // Example on how to pull.
     IEnumerator PullFakeGemInfo() {
-        yield return new WaitForSeconds(1);
-        while (true) {
-            yield return new WaitForSeconds(1);
-            int rowNum = 540 + CloudGameData.gameNum;
+        int rowNum = 540 + CloudGameData.gameNum;
 
-            using (UnityWebRequest webRequest = UnityWebRequest.Get(CloudGameData.PullURL + rowNum)) {
-                yield return webRequest.SendWebRequest();
-
-                //Debug.Log(webRequest.downloadHandler.text); 
-                string result = webRequest.downloadHandler.text.Split(',')[1];
-                try {
-                    string[] data = result.Split('|');
-                    Vector2 pos = new Vector2(float.Parse(data[0]), float.Parse(data[1]));
-                    //Debug.Log(bool.Parse(data[2]));
-                    if (bool.Parse(data[2])) {
-                        itemAction.gemState = ItemAction.State.Floating;
-                        itemAction.pickupPlayer = null;
-                        isTrapActive = true;
-                        itemAction.inUse = true;
-                        transform.position = pos;
-                        floatScript.ResetPosition();
-                        floatScript.enabled = true;
-                    } else if (isTrapActive) {
-                        //Someone has already sprung the trap and the game needs to update accordingly
-                        Debug.Log("this is a test.");
-                        StartCoroutine(ClearFakeGemInfo());
-                    }
-                } catch (Exception e) {
-                    Debug.LogWarning(e.Message);
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(CloudGameData.PullURL + rowNum)) {
+            yield return webRequest.SendWebRequest();
+            //Debug.Log(webRequest.downloadHandler.text); 
+            string result = webRequest.downloadHandler.text.Split(',')[1];
+            try {
+                string[] data = result.Split('|');
+                Vector2 pos = new Vector2(float.Parse(data[0]), float.Parse(data[1]));
+                //Debug.Log(bool.Parse(data[2]));
+                if (bool.Parse(data[2])) {
+                    itemAction.gemState = ItemAction.State.Floating;
+                    itemAction.pickupPlayer = null;
+                    isTrapActive = true;
+                    itemAction.inUse = true;
+                    transform.position = pos;
+                    floatScript.ResetPosition();
+                    floatScript.enabled = true;
                 }
-                //Debug.Log("New text:" + result);
+                else if (isTrapActive) {
+                    //Someone has already sprung the trap and the game needs to update accordingly
+                    StartCoroutine(ClearFakeGemInfo());
+                }
             }
+            catch (Exception e) {
+                Debug.LogWarning(e.Message);
+            }
+            yield return new WaitForSeconds(1);
+            StartCoroutine(PullFakeGemInfo());
+            //Debug.Log("New text:" + result);
         }
     }
 }

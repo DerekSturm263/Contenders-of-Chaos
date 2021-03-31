@@ -17,8 +17,8 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 currentInputVal;
 
     [Header("Movement Settings")]
-    public readonly float walkSpeed = 4f;
-    public readonly float runSpeed = 7f;
+    public float walkSpeed = 4f;
+    public float runSpeed = 7f;
     private float currentSpeed;
 
     public float jumpSpeed = 15f;
@@ -102,11 +102,10 @@ public class PlayerMovement : MonoBehaviour
         Vector2 input = ctx.ReadValue<Vector2>();
         currentInputVal = input;
 
-        if (input.x != 0)
-        {
+        if (input.x != 0) {
             sprtRndr.flipX = input.x < 0;
         }
-        anim.SetFloat("Movement Speed", Mathf.Abs(input.x));
+        anim.SetFloat("Movement Speed", Mathf.Abs(input.x)); 
     }
 
     public void Jump()
