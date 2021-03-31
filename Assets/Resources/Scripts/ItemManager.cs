@@ -28,10 +28,10 @@ public class ItemManager : MonoBehaviour
         GameObject obj = GameObject.Find("Shield");
         obj.AddComponent<ShieldScript>();
     }));
-    /*public Item SpeedFeather = new Item("SpeedFeather", true, new Action(() => {
+    public Item SpeedFeather = new Item("SpeedFeather", true, new Action(() => {
         GameObject obj = GameObject.Find("SpeedFeather");
         obj.AddComponent<SpeedFeatherScript>();
-    }));*/
+    }));
     public Item Snowball = new Item("Snowball", true, new Action(() =>
     {
         GameObject obj = GameObject.Find("Snowball");
@@ -59,8 +59,8 @@ public class ItemManager : MonoBehaviour
             GameObject item3 = NewItem(Beehive);
             Beehive.itemAction.Invoke();
         }
-        GameObject item5 = NewItem(SpeedFeather);
-        SpeedFeather.itemAction.Invoke();
+        /*GameObject item5 = NewItem(SpeedFeather);
+        SpeedFeather.itemAction.Invoke();*/
         GameObject item6 = NewItem(Snowball);
         Snowball.itemAction.Invoke();
 
