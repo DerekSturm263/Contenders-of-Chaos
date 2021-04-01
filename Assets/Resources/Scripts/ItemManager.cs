@@ -6,34 +6,42 @@ using UnityEngine.Networking;
 public class ItemManager : MonoBehaviour
 {
     public const string FilePath = "Sprites/";
+    public static float spawnTime = 30f;
 
-    public Item beehive = new Item("Beehive", false, new Action(() =>
-    {
-        Debug.Log("Use Beehive.");
-        GetItemManager().StartCoroutine(PullExample());
+    public Item RibCage = new Item("RibCage", true, new Action(() => {
+        GameObject obj = GameObject.Find("RibCage");
+        obj.AddComponent<RibCageScript>();
     }));
-    public Item cloak = new Item("Cloak", false, new Action(() =>
-    {
-        Debug.Log("Pick up cloak.");
-    }));
-    public Item carryTest = new Item("Beehive", true, new Action(() =>
-    {
-        Debug.Log("Carry item.");
-    }));
-
     public Item FakeGem = new Item("FakeGem", true, new Action(() => {
         GameObject obj = GameObject.Find("FakeGem");
         obj.AddComponent<FakeItemScript>();
-    }));
-    public Item SpeedFeather = new Item("SpeedFeather", true, new Action(() => {
-        GameObject obj = GameObject.Find("SpeedFeather");
-        obj.AddComponent<SpeedFeatherScript>();
     }));
     public Item FrogBoots = new Item("FrogBoots", true, new Action(() => {
         GameObject obj = GameObject.Find("FrogBoots");
         obj.AddComponent<FrogBootsScript>();
     }));
-
+    public Item Beehive = new Item("Beehive", true, new Action(() => {
+        GameObject obj = GameObject.Find("Beehive");
+        obj.AddComponent<BeehiveScript>();
+    }));
+    public Item Shield = new Item("Shield", true, new Action(() => {
+        GameObject obj = GameObject.Find("Shield");
+        obj.AddComponent<ShieldScript>();
+    }));
+    public Item SpeedFeather = new Item("SpeedFeather", true, new Action(() => {
+        GameObject obj = GameObject.Find("SpeedFeather");
+        obj.AddComponent<SpeedFeatherScript>();
+    }));
+    public Item Snowball = new Item("Snowball", true, new Action(() =>
+    {
+        GameObject obj = GameObject.Find("Snowball");
+        obj.AddComponent<SnowballScript>();
+    }));
+    public Item Cloak = new Item("Cloak", false, new Action(() =>
+    {
+        GameObject obj = GameObject.Find("Cloak");
+        obj.AddComponent<CloakScript>();
+    }));
 
     public static ItemManager GetItemManager()
     {
@@ -43,18 +51,28 @@ public class ItemManager : MonoBehaviour
     private void Awake()
     {
         // Don't forget to make the items after you define them.
-        /*GameObject item1 = NewItem(beehive);
-        GameObject item2 = NewItem(cloak);
-        GameObject item3 = NewItem(carryTest);*/
-        GameObject item4 = NewItem(FakeGem);
+        GameObject item1 = NewItem(FakeGem);
         FakeGem.itemAction.Invoke();
-        GameObject item5 = NewItem(SpeedFeather);
-        SpeedFeather.itemAction.Invoke();
-        GameObject item6 = NewItem(FrogBoots);
-        FrogBoots.itemAction.Invoke();
+        if (SystemInfo.deviceType == DeviceType.Desktop) {
+            GameObject item2 = NewItem(FrogBoots);
+            FrogBoots.itemAction.Invoke();
+            GameObject item3 = NewItem(Beehive);
+            Beehive.itemAction.Invoke();
+        }
+        /*GameObject item5 = NewItem(SpeedFeather);
+        SpeedFeather.itemAction.Invoke();*/
+        GameObject item6 = NewItem(Snowball);
+        Snowball.itemAction.Invoke();
+
+        /*GameObject item0 = NewItem(RibCage);
+        RibCage.itemAction.Invoke();
+        GameObject item7 = NewItem(Cloak);
+        Cloak.itemAction.Invoke();
+        GameObject item4 = NewItem(Shield);
+        Shield.itemAction.Invoke();*/
 
         // Spawns a new item every 30 seconds.
-        InvokeRepeating("SpawnItem", 30f, 30f);
+        InvokeRepeating("SpawnItem", spawnTime, spawnTime);
     }
 
     // Example on how to push.
@@ -117,6 +135,7 @@ public class ItemManager : MonoBehaviour
 
     public void SpawnItem()
     {
+        bool itemFound = true;
         int randomNum = UnityEngine.Random.Range(0, ItemAction.items.Count);
         int retries = 0;
         while (ItemAction.items[randomNum].inUse) {
@@ -124,11 +143,14 @@ public class ItemManager : MonoBehaviour
             randomNum = UnityEngine.Random.Range(0, ItemAction.items.Count);
             retries++;
             if (retries > 10) {
-                return;
+                itemFound = false;
+                break;
             }
         }
-        ItemAction.items[randomNum].GetComponent<Float>().enabled = false;
-        ItemAction.items[randomNum].Spawn();
-        ItemAction.items[randomNum].GetComponent<Float>().enabled = true;
+        if (itemFound) {
+            ItemAction.items[randomNum].GetComponent<Float>().enabled = false;
+            ItemAction.items[randomNum].Spawn();
+            ItemAction.items[randomNum].GetComponent<Float>().enabled = true;
+        }
     }
 }

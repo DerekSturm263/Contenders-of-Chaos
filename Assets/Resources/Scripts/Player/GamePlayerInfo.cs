@@ -16,6 +16,9 @@ public class GamePlayerInfo : MonoBehaviour
 
     public static int[] teamPoints = new int[8];
 
+    public static bool useRandomChallenge = true;
+    public static bool useHazards = true;
+
     public int Points
     {
         get => _points;
@@ -55,6 +58,8 @@ public class GamePlayerInfo : MonoBehaviour
 
     private void Awake()
     {
+        MusicPlayer.Restart();
+
         var cam = Camera.main;
         
         if (playerNum % 2 == 0)

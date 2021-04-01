@@ -17,7 +17,7 @@ public class FairyMovement : MonoBehaviour
     private Vector2 screenTapDeltaPos;
 
     public float minJoystickDist, maxJoystickDist;
-    private readonly float speed = 10f;
+    public float speed = 10f;
 
     private RectTransform tapStart;
     private RectTransform tapEnd;

@@ -4,9 +4,12 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Networking;
 using System.Linq;
 using System;
+using UnityEngine.EventSystems;
 
 public class UIController : MonoBehaviour
 {
+    private EventSystem currentEvent;
+
     public TMPro.TMP_Text roomNumber;
 
     public GameObject codePrompt;
@@ -49,6 +52,12 @@ public class UIController : MonoBehaviour
 
     public GameObject alertButton;
 
+    public GameObject settingsButton;
+    public GameObject gameSettingsBG;
+    public GameObject leaveGameBG;
+
+    public GameObject mainCanvas;
+
     // Settings.
     public static float volume = 0.5f;
     public static bool useFullscreen = true;
@@ -59,8 +68,12 @@ public class UIController : MonoBehaviour
 
     public static bool readyToQuit = true;
 
+    public GameObject oldSelected;
+
     private void Awake()
     {
+        currentEvent = FindObjectOfType<EventSystem>();
+
         if (resetCloudData)
         {
             Debug.Log("Clearing all cloud data.");
@@ -123,11 +136,17 @@ public class UIController : MonoBehaviour
         if (firstTimeUsernameInput != null && GameController.playerInfo.name == "")
         {
             firstTimeUsernameInput.SetActive(true);
+            currentEvent.SetSelectedGameObject(firstTimeUsernameInput.GetComponentInChildren<TMPro.TMP_InputField>().gameObject);
         }
 
         if (alertButton != null)
         {
             alertButton.SetActive(!isPC);
+        }
+
+        if (settingsButton != null)
+        {
+            settingsButton.SetActive(CloudGameData.isHosting);
         }
     }
 
@@ -280,13 +299,13 @@ public class UIController : MonoBehaviour
     private void DisplayCodePrompt()
     {
         codePrompt.SetActive(true);
-        enterCodePrompt.text = "Please enter the room code of the game you wish to enter.\n\nExample: 123456";
+        enterCodePrompt.text = "Please enter a room code. The code must be 6 digits in length and only consist of numbers.\n\nExample: 285193";
         codeInput.text = "";
     }
 
     public void HideCodePrompt()
     {
-        codePrompt.SetActive(false);
+        codePrompt.GetComponent<Animator>().SetTrigger("Exit");
     }
 
     public void EnterCode()
@@ -305,7 +324,7 @@ public class UIController : MonoBehaviour
 
     public void GoToPlay()
     {
-        SceneManager.LoadScene("Host or Join Game");
+        mainCanvas.GetComponent<Animator>().SetTrigger("Exit");
     }
 
     private IEnumerator TryJoin(string input)
@@ -553,6 +572,18 @@ public class UIController : MonoBehaviour
         }
     }
 
+    public void CloseSettingsOrGame()
+    {
+        if (!gameSettingsBG.activeSelf)
+        {
+            OpenMenu(leaveGameBG);
+        }
+        else
+        {
+            CloseMenu(gameSettingsBG);
+        }
+    }
+
     public void LeaveToTitle()
     {
         if (codePrompt)
@@ -575,7 +606,7 @@ public class UIController : MonoBehaviour
             }
             else if (!joinInfo.activeSelf)
             {
-                SceneManager.LoadScene("Title");
+                mainCanvas.GetComponent<Animator>().SetTrigger("Exit");
             }
         }
         else
@@ -727,32 +758,51 @@ public class UIController : MonoBehaviour
 
     public void GoToSettings()
     {
-        SceneManager.LoadScene("Settings");
+        mainCanvas.GetComponent<Animator>().SetTrigger("Exit");
+        mainCanvas.GetComponent<Animator>().GetBehaviour<LoadScene>().sceneName = "Settings";
     }
 
     public void SettingsToTitle()
     {
-        SceneManager.LoadScene("Title");
+        mainCanvas.GetComponent<Animator>().SetTrigger("Exit");
     }
 
     public void OpenMenu(GameObject menu)
     {
         menu.SetActive(true);
+
+        oldSelected = currentEvent.currentSelectedGameObject;
+
+        if (menu.GetComponentsInChildren<UnityEngine.UI.Button>().Length != 0)
+        {
+            currentEvent.SetSelectedGameObject(menu.GetComponentsInChildren<UnityEngine.UI.Button>()[0].gameObject);
+        }
+        else if (menu.GetComponentsInChildren<TMPro.TMP_InputField>().Length != 0)
+        {
+            currentEvent.SetSelectedGameObject(menu.GetComponentsInChildren<TMPro.TMP_InputField>()[0].gameObject);
+        }
     }
 
     public void CloseMenu(GameObject menu)
     {
-        menu.SetActive(false);
+        menu.GetComponent<Animator>().SetTrigger("Exit");
+
+        if (oldSelected != null)
+        {
+            currentEvent.SetSelectedGameObject(oldSelected);
+        }
     }
 
-    public void Quit()
+    public void Quit(GameObject menu)
     {
+        menu.GetComponent<Animator>().SetTrigger("Exit");
         Application.Quit();
     }
 
     public void GoToMobileApp()
     {
-        SceneManager.LoadScene("Mobile App");
+        mainCanvas.GetComponent<Animator>().SetTrigger("Exit");
+        mainCanvas.GetComponent<Animator>().GetBehaviour<LoadScene>().sceneName = "Mobile App";
     }
 
     public void StartGame()
@@ -766,16 +816,22 @@ public class UIController : MonoBehaviour
         form.AddField("groupid", "pm36");
         form.AddField("grouppw", "N3Km3yJZpM");
         form.AddField("row", CloudGameData.gameNum + 220);
-        form.AddField("s4", "True");
+        form.AddField("s4", "True," + GamePlayerInfo.timeSet + "," + SpawnGems.count + "," + ItemManager.spawnTime + "," + (GamePlayerInfo.useRandomChallenge ? 1 : 0) + "," + (GamePlayerInfo.useHazards ? 1 : 0));
 
         using (UnityWebRequest webRequest = UnityWebRequest.Post(CloudGameData.PushURL, form))
         {
             yield return webRequest.SendWebRequest();
-        }
 
-        ChooseGameMode(CloudGameData.gameNum); // Change to button when you add more gamemodes.
-        GamePlayerInfo.timeSet = 300;
-        SceneManager.LoadScene("Main");
+            if (webRequest.isNetworkError)
+            {
+                Debug.LogError("An error has occurred while pushing.\n" + webRequest.error);
+            }
+            else
+            {
+                ChooseGameMode(0); // Change to button when you add more gamemodes.
+                SceneManager.LoadScene("Main");
+            }
+        }
     }
 
     public void ChooseGameMode(int gameModeNum)
@@ -791,28 +847,6 @@ public class UIController : MonoBehaviour
             {
                 StartCoroutine(GetGemSeed());
                 StartCoroutine(GetTileSeed());
-            }
-        }
-        else if (gameModeNum == 1)
-        {
-            if (CloudGameData.isHosting)
-            {
-
-            }
-            else
-            {
-
-            }
-        }
-        else
-        {
-            if (CloudGameData.isHosting)
-            {
-
-            }
-            else
-            {
-
             }
         }
     }
@@ -923,7 +957,7 @@ public class UIController : MonoBehaviour
         SaveController.Save(input);
 
         if (panel != null)
-            panel.SetActive(false);
+            panel.GetComponent<Animator>().SetTrigger("Exit");
     }
 
     private void UpdateResultsInfo()
@@ -965,6 +999,29 @@ public class UIController : MonoBehaviour
 
     private IEnumerator DisplayWinner()
     {
+        if (CloudGameData.isHosting)
+        {
+            WWWForm form = new WWWForm();
+            form.AddField("groupid", "pm36");
+            form.AddField("grouppw", "N3Km3yJZpM");
+            form.AddField("row", CloudGameData.gameNum + 220);
+            form.AddField("s4", "False");
+
+            using (UnityWebRequest webRequest = UnityWebRequest.Post(CloudGameData.PushURL, form))
+            {
+                yield return webRequest.SendWebRequest();
+
+                if (webRequest.isNetworkError)
+                {
+                    Debug.LogError("An error has occured while trying to push data.");
+                }
+                else
+                {
+                    Debug.Log("Data successfully pushed.");
+                }
+            }
+        }
+
         for (int i = 0; i < Array.FindAll(teams, x => x.activeSelf).Length; ++i)
         {
             yield return new WaitUntil(() => doneWithResults[i]);
@@ -989,9 +1046,10 @@ public class UIController : MonoBehaviour
         SceneManager.LoadScene("Team Select");
     }
 
-    public void AdjustVolume()
+    public void AdjustVolume(float f)
     {
-
+        MusicPlayer.ChangeVolume(f);
+        SoundPlayer.ChangeVolume(f);
     }
 
     public void ToggleFullscreen()
@@ -1011,6 +1069,31 @@ public class UIController : MonoBehaviour
     }
 
     #endregion
+
+    public void AdjustMatchTime(string time)
+    {
+        GamePlayerInfo.timeSet = Int32.Parse(time);
+    }
+
+    public void AdjustGemCount(string count)
+    {
+        SpawnGems.count = Int32.Parse(count);
+    }
+
+    public void AdjustItemFreqeuency(float amount)
+    {
+        //ItemManager.spawnTime = 40f - amount * 10f;
+    }
+
+    public void ToggleRandomChallenge(bool value)
+    {
+        GamePlayerInfo.useRandomChallenge = value;
+    }
+
+    public void ToggleHazards(bool value)
+    {
+        GamePlayerInfo.useHazards = value;
+    }
 
     private void OnApplicationQuit()
     {

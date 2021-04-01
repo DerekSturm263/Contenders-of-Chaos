@@ -17,8 +17,8 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 currentInputVal;
 
     [Header("Movement Settings")]
-    public readonly float walkSpeed = 4f;
-    public readonly float runSpeed = 8f;
+    public float walkSpeed = 4f;
+    public float runSpeed = 7f;
     private float currentSpeed;
 
     public float jumpSpeed = 15f;
@@ -32,8 +32,11 @@ public class PlayerMovement : MonoBehaviour
 
     public float diAmount = 1f;
 
+    public Vector3 spawnPoint;
+
     private void Awake()
     {
+        spawnPoint = transform.position;
         inputActions = new InputActions();
 
         anim = GetComponent<Animator>();
@@ -81,6 +84,17 @@ public class PlayerMovement : MonoBehaviour
                 rb2D.velocity = new Vector2(rb2D.velocity.x, currentSpeed == runSpeed ? -6f : -4f);
             }
         }
+
+        if (transform.position.y < -40f)
+        {
+            Die();
+        }
+    }
+
+    public void Die()
+    {
+        transform.position = spawnPoint;
+        GamePlayerInfo.GetPlayerInfo().Points -= 2;
     }
 
     public void Movement(InputAction.CallbackContext ctx)
@@ -88,11 +102,10 @@ public class PlayerMovement : MonoBehaviour
         Vector2 input = ctx.ReadValue<Vector2>();
         currentInputVal = input;
 
-        if (input.x != 0)
-        {
+        if (input.x != 0) {
             sprtRndr.flipX = input.x < 0;
         }
-        anim.SetFloat("Movement Speed", Mathf.Abs(input.x));
+        anim.SetFloat("Movement Speed", Mathf.Abs(input.x)); 
     }
 
     public void Jump()
