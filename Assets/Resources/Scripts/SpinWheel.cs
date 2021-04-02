@@ -36,6 +36,22 @@ public class SpinWheel : MonoBehaviour
 
                     StartCoroutine(SpinTheWheel(5 * randomTime, maxAngle));
                 }
+                if (itemNumber == 1 || itemNumber == 5)
+                {
+                    
+                }
+                if (itemNumber == 2 || itemNumber == 6)
+                {
+                    
+                }
+                if (itemNumber == 3 || itemNumber == 7)
+                {
+                    
+                }
+                if (itemNumber == 4 || itemNumber == 8)
+                {
+                    
+                }
             }
         }
     }
