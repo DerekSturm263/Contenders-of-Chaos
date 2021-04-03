@@ -56,13 +56,13 @@ public class ItemManager : MonoBehaviour
         if (SystemInfo.deviceType == DeviceType.Desktop) {
             GameObject item2 = NewItem(FrogBoots);
             FrogBoots.itemAction.Invoke();
-            GameObject item3 = NewItem(Beehive);
-            Beehive.itemAction.Invoke();
+            /*GameObject item3 = NewItem(Beehive);
+            Beehive.itemAction.Invoke();*/
         }
-        /*GameObject item5 = NewItem(SpeedFeather);
-        SpeedFeather.itemAction.Invoke();*/
-        GameObject item6 = NewItem(Snowball);
-        Snowball.itemAction.Invoke();
+        GameObject item5 = NewItem(SpeedFeather);
+        SpeedFeather.itemAction.Invoke();
+        /*GameObject item6 = NewItem(Snowball);
+        Snowball.itemAction.Invoke();*/
 
         /*GameObject item0 = NewItem(RibCage);
         RibCage.itemAction.Invoke();

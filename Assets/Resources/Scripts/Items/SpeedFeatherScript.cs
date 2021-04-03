@@ -12,8 +12,7 @@ public class SpeedFeatherScript : MonoBehaviour {
 
     void Start() {
         itemAction = GetComponent<ItemAction>();
-        //I NEEED TEAM NUMB PLZ
-        rowNum = 550 + (4 * CloudGameData.gameNum);
+        rowNum = 550 + (4 * CloudGameData.gameNum) + GamePlayerInfo.playerNum / 2;
     }
 
     // Update is called once per frame
@@ -91,7 +90,6 @@ public class SpeedFeatherScript : MonoBehaviour {
         using (UnityWebRequest webRequest = UnityWebRequest.Post(CloudGameData.PushURL, form2)) // Uses the PushUrl.
         {
             yield return webRequest.SendWebRequest();
-            Debug.Log("Fake Gem position cleared.");
             if (webRequest.isNetworkError) {
                 Debug.LogError("An error has occurred while pushing.\n" + webRequest.error);
             }
@@ -104,7 +102,7 @@ public class SpeedFeatherScript : MonoBehaviour {
             string result = webRequest.downloadHandler.text;
             try {
                 if (bool.Parse(result)) {
-                    StartCoroutine(SpeedyBoi(null));
+                    StartCoroutine(SpeedyBoi(GamePlayerInfo.player));
                 }
             }
             catch (Exception e) {
