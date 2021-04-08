@@ -35,6 +35,8 @@ public class ItemManager : MonoBehaviour
     public Item Snowball = new Item("Snowball", true, new Action(() =>
     {
         GameObject obj = GameObject.Find("Snowball");
+        CircleCollider2D collider = obj.AddComponent<CircleCollider2D>();
+        collider.isTrigger = true;
         obj.AddComponent<SnowballScript>();
     }));
     public Item Cloak = new Item("Cloak", false, new Action(() =>
@@ -61,8 +63,8 @@ public class ItemManager : MonoBehaviour
         }
         GameObject item5 = NewItem(SpeedFeather);
         SpeedFeather.itemAction.Invoke();
-        /*GameObject item6 = NewItem(Snowball);
-        Snowball.itemAction.Invoke();*/
+        GameObject item6 = NewItem(Snowball);
+        Snowball.itemAction.Invoke();
 
         /*GameObject item0 = NewItem(RibCage);
         RibCage.itemAction.Invoke();

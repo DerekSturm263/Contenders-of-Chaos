@@ -11,6 +11,7 @@ public class SpeedFeatherScript : MonoBehaviour {
     public static float coolDown = 5;
 
     void Start() {
+        StartCoroutine(ResetBools());
         itemAction = GetComponent<ItemAction>();
         rowNum = 550 + (4 * CloudGameData.gameNum) + GamePlayerInfo.playerNum / 2;
     }
@@ -65,7 +66,7 @@ public class SpeedFeatherScript : MonoBehaviour {
             WWWForm form2 = new WWWForm();
             form2.AddField("groupid", "pm36"); // Group ID.
             form2.AddField("grouppw", "N3Km3yJZpM"); // Password.
-            form2.AddField("row", 550 + CloudGameData.gameNum + i); // Row you're pushing to.
+            form2.AddField("row", 550 + (CloudGameData.gameNum * 4) + i); // Row you're pushing to.
             form2.AddField("s4", "False"); // Value that you're pushing.
 
             using (UnityWebRequest webRequest = UnityWebRequest.Post(CloudGameData.PushURL, form2)) // Uses the PushUrl.
